@@ -1,15 +1,17 @@
 ;; f_value = number of cultural traits
 ;; q_value = number of possible values for each cultural trait
 ;; T_treshold = site's tolerance threshold
-globals [f_value q_value T_threshold]
+globals [ f_value q_value T_threshold   ]
 
 turtles-own
 [
-  emptySite?           ;; if true, the site is not inhabited
-  code                 ;; site's cultural code
+  emptySite?        ;; if true, the site is not inhabited
+  code              ;; site's cultural code
 ]
 
 to setup
+  ;; to create replicable results
+  random-seed 95199254
 end
 
 
@@ -18,12 +20,50 @@ end
 
 ;; this is the main Axelrod-Schellig model
 to axelrodSchelling
-  ask turtles with [not emptySite?]
+  ask turtles with [ not emptySite?   ]
   [
-    ifelse all? link-neighbors [emptySite?]
-      [move who turtle]
+    ;; if all neighbors are empty, directly move to another empty site
+    ifelse empty? link-neighbors with [ not emptySite? ]
+      [ move who of self ]
+    [
+      let peer one-of link-neighbors with [ not emptySite? ]
+
+      ;; computes the kronecker's delta of each couple of items of the two corresponding item of the cultural code lists
+      ;; then folds it by summing all the values
+      let culturalOverlap getCulturalOverlap [self peer]
+
+      ;; with probability equal to cultural overlap copies one trait of the selected peer
+      ifelse random-float 1 <= culturalOverlap
+        [
+          let index random f_value
+          let trait item index code of peer
+          set code of self replace-item index code of self trait
+        ]
+      [
+        let averageCulturalOverlap getAverageCulturalOverlap [self]
+
+
+      ]
+    ]
 
   ]
+end
+
+;; computes and returns the cultural overlap between n1 and n2
+to-report getCulturalOverlap [n1 n2]
+  ;; computes the kronecker's delta of each couple of items of the two corresponding item of the cultural code lists
+  ;; then folds it by summing all the values
+  report (reduce + (foreach code of n1 code of n2 [[a b] -> ifelse-value (a==b) [1] [0]])) / f_value
+end
+
+;; returns the average cultural overlap of n1 over its neighbors
+to-report getAverageCulturalOverlap [n1]
+  let average 0
+  ask link-neighbors with [not emptySite?]
+  [
+    set average average + getCulturalOverlap [n1 self]
+  ]
+  report average / f_value
 end
 
 to move [turtleID]
