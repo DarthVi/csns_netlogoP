@@ -1,8 +1,6 @@
 ;; f_value = number of cultural traits
 ;; q_value = number of possible values for each cultural trait
 ;; T_treshold = site's tolerance threshold
-globals [ f_value q_value T_threshold   ]
-
 turtles-own
 [
   emptySite?        ;; if true, the site is not inhabited
@@ -10,6 +8,8 @@ turtles-own
 ]
 
 to setup
+  clear-all
+  set-default-shape turtles "circle"
   ;; to create replicable results
   random-seed 95199254
 end
@@ -18,30 +18,31 @@ end
 to go
 end
 
-;; this is the main Axelrod-Schellig model
+;; this is the main Axelrod-Schelling model
 to axelrodSchelling
   ask turtles with [ not emptySite?   ]
   [
     ;; if all neighbors are empty, directly move to another empty site
-    ifelse empty? link-neighbors with [ not emptySite? ]
-      [ move who of self ]
+    ifelse all? link-neighbors [ not emptySite? ]
+      [ move [ who ] of self ]
     [
       let peer one-of link-neighbors with [ not emptySite? ]
 
       ;; computes the kronecker's delta of each couple of items of the two corresponding item of the cultural code lists
       ;; then folds it by summing all the values
-      let culturalOverlap getCulturalOverlap [self peer]
+      let culturalOverlap getCulturalOverlap self peer
 
       ;; with probability equal to cultural overlap copies one trait of the selected peer
       ifelse random-float 1 <= culturalOverlap
         [
           let index random f_value
-          let trait item index code of peer
-          set code of self replace-item index code of self trait
+          let trait item index [ code ] of peer
+          set code replace-item index code trait
         ]
       [
-        let averageCulturalOverlap getAverageCulturalOverlap [self]
-        if averageCulturalOverlap < T_threshold [move who of self]
+        ;; if the averageCulturalOverlap is lower than the threshold, move to an empty site
+        let averageCulturalOverlap getAverageCulturalOverlap self
+        if averageCulturalOverlap < T_threshold [ move [ who ] of self ]
       ]
     ]
 
@@ -49,29 +50,35 @@ to axelrodSchelling
 end
 
 ;; computes and returns the cultural overlap between n1 and n2
-to-report getCulturalOverlap [n1 n2]
+to-report getCulturalOverlap [ n1 n2 ]
   ;; computes the kronecker's delta of each couple of items of the two corresponding item of the cultural code lists
   ;; then folds it by summing all the values
-  report (reduce + (foreach code of n1 code of n2 [[a b] -> ifelse-value (a==b) [1] [0]])) / f_value
+  report (reduce + (map [ [a b] -> ifelse-value (a = b) [1] [0] ] [ code ] of n1 [ code ] of n2 )) / f_value
 end
 
 ;; returns the average cultural overlap of n1 over its neighbors
-to-report getAverageCulturalOverlap [n1]
+to-report getAverageCulturalOverlap [ n1 ]
   let average 0
-  ask link-neighbors with [not emptySite?]
+  ask link-neighbors with [ not emptySite? ]
   [
-    set average average + getCulturalOverlap [n1 self]
+    set average average + getCulturalOverlap n1 self
   ]
   report average / f_value
 end
 
-to move [turtleID]
+;; move the turtle identified by turtleID in another random empty site
+to move [ turtleID ]
+  let newSite one-of turtles with [ emptySite? ]
+  ask newSite [ set code [ code ] of turtle turtleID ]
+  ;set [ code ] of newSite [ code ] of turtle turtleID
+  ask newSite [ set emptySite? false ]
+  ask turtle turtleID [set emptySite? true]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+385
 10
-647
+822
 448
 -1
 -1
@@ -94,6 +101,51 @@ GRAPHICS-WINDOW
 1
 ticks
 30.0
+
+SLIDER
+18
+15
+190
+48
+f_value
+f_value
+1
+100
+1.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+18
+67
+190
+100
+q_value
+q_value
+1
+100
+1.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+19
+116
+191
+149
+T_threshold
+T_threshold
+0
+1
+0.4
+0.01
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
