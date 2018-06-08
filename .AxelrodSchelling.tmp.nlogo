@@ -103,13 +103,14 @@ end
 
 ;; reports the Hamming distance between the cultural code provided as argument and the list made up of f_value zeros
 to-report getHammingDistance [ codeList ]
-  report (reduce + (map [ [a b] -> ifelse-value (a = b) [1] [0] ] codeList n-values f_value [0] ))
+  report (reduce + (map [ [a b] -> ifelse-value (a != b) [1] [0] ] codeList n-values f_value [0] ))
 end
 
 ;; colors the sites following these rules:
 ;; if the site is empty, set the color to white;
 ;; otherwise choose an appropriate color in the reverse HSV gradient range from lime green to red.
 ;; The more the cultural code is similar to the code made up of zeros, the "greener" is the site.
+;; First and last rgb value picked from https://www.colorhexa.com/32cd32-to-ff0000
 ;;
 ;; The distance used to measure similarity between cultural codes is the Hamming distance
 to redoColor
