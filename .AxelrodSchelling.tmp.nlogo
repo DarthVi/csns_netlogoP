@@ -1,7 +1,5 @@
 extensions [ palette ]
 
-globals [ changes? ]
-
 turtles-own
 [
   emptySite?        ;; if true, the site is not inhabited
@@ -23,7 +21,7 @@ end
 
 to go
 
-  if all? turtles [not changedOrMoved?]
+  if all? turtles [no changedOrMoved?]
     [stop]
 
   axelrodSchelling
@@ -79,7 +77,7 @@ to setup-spatially-clustered-network
     ]
   ]
   ; make the network look a little prettier
-  repeat 20
+  repeat 10
   [
     layout-spring turtles links 0.3 (world-width / (sqrt numberOfNodes)) 1
   ]
@@ -90,32 +88,28 @@ to axelrodSchelling
   ask turtles with [ not emptySite?   ]
   [
     ;; if all neighbors are empty, directly move to another empty site
-    ifelse all? link-neighbors [ emptySite? ]
+    ifelse not any? link-neighbors with [ not emptySite? ]
       [ move who ]
     [
       let peer one-of link-neighbors with [ not emptySite? ]
 
-      ifelse peer != nobody
-      [
-        ;; computes the kronecker's delta of each couple of items of the two corresponding item of the cultural code lists
-        ;; then folds it by summing all the values
-        let culturalOverlap getCulturalOverlap self peer
+      ;; computes the kronecker's delta of each couple of items of the two corresponding item of the cultural code lists
+      ;; then folds it by summing all the values
+      let culturalOverlap getCulturalOverlap self peer
 
-        ;; with probability equal to cultural overlap copies one trait of the selected peer
-        ifelse random-float 1 <= culturalOverlap
-        [
-          set changedOrMoved? true
-          let index random f_value
-          let trait item index [ code ] of peer
-          set code replace-item index code trait
-        ]
-        [
-          ;; if the averageCulturalOverlap is lower than the threshold, move to an empty site
-          let averageCulturalOverlap getAverageCulturalOverlap self
-          ifelse averageCulturalOverlap < T_threshold [ move who ] [ set changedOrMoved? false ]
-        ]
+      ;; with probability equal to cultural overlap copies one trait of the selected peer
+      ifelse random-float 1 <= culturalOverlap
+      [
+        set changedOrMoved? true
+        let index random f_value
+        let trait item index [ code ] of peer
+        set code replace-item index code trait
       ]
-      [ set changedOrMoved? false ]
+      [
+        ;; if the averageCulturalOverlap is lower than the threshold, move to an empty site
+        let averageCulturalOverlap getAverageCulturalOverlap self
+        ifelse averageCulturalOverlap < T_threshold [ move who ] [ set changedOrMoved? false ]
+      ]
     ]
 
   ]
@@ -178,19 +172,19 @@ end
 GRAPHICS-WINDOW
 385
 10
-912
-538
+852
+478
 -1
 -1
-15.73
+13.91
 1
 10
 1
 1
 1
 0
-1
-1
+0
+0
 1
 -16
 16
