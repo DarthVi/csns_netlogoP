@@ -1,10 +1,4 @@
 extensions [ palette ]
-;; f_value = number of cultural traits
-;; q_value = number of possible values for each cultural trait
-;; T_treshold = site's tolerance threshold
-
-;; list of available colors and chosen coloros
-;;globals [ colors ]
 
 turtles-own
 [
@@ -14,18 +8,55 @@ turtles-own
 
 to setup
   clear-all
-  set-default-shape turtles "circle"
-  ;; generates a list of rgb colors as gradient from lime green to red
-  ;;set colors [ [50 205 50] [74 209 47] [100 213 43] [129 218 40] [160 222 36] [194 226 32] [230 230 28] [234 199 24] [238 165 19] [243 129 15] [247 89 10] [251 46 5] [250 0 0] ]
-  ;; to create replicable results uncomment the following line
-  random-seed 95199254
+  ; to create replicable results uncomment the following line
+  ; random-seed 95199254
+
+  setupNodes
+  setup-spatially-clustered-network
+
+  ;initializeNetwork
+  ;redoColor
+  reset-ticks
 end
 
 to go
+  ;axelrodSchelling
+  ;redoColor
+  tick
 end
 
-;; this code comes from the Virus on a Network example in the Netlogo Library.
-;; As the name suggests, it builds spatially clustered networks
+
+to setupNodes
+  set-default-shape turtles "circle"
+  create-turtles numberOfNodes
+  [
+    ; for visual reasons, we don't put any nodes *too* close to the edges
+    setxy (random-xcor * 0.95) (random-ycor * 0.95)
+  ]
+end
+
+; Sets at least one node empty, other nodes are empty with a specific probability.
+; Then non empty sites get a random cultural code.
+to initializeNetwork
+  ; at least one node must be empty
+  ask turtle 0 [ set emptySite? true ]
+
+  ask turtles with [ who != 0 ]
+  [
+    ifelse random-float 1 <= emptyProbability
+    [
+      set emptySite? true
+    ]
+    [
+      set emptySite? false
+      ; chose traits at random uniformly
+      set code n-values f_value [ i -> random q_value]
+    ]
+  ]
+end
+
+; this code comes from the Virus on a Network example in the Netlogo Library.
+; As the name suggests, it builds spatially clustered networks
 to setup-spatially-clustered-network
   let num-links (averageNodeDegree * numberOfNodes) / 2
   while [count links < num-links ]
@@ -44,7 +75,7 @@ to setup-spatially-clustered-network
   ]
 end
 
-;; this is the main Axelrod-Schelling model
+; this is the main Axelrod-Schelling model
 to axelrodSchelling
   ask turtles with [ not emptySite?   ]
   [
@@ -75,7 +106,7 @@ to axelrodSchelling
   ]
 end
 
-;; computes and returns the cultural overlap between n1 and n2
+; computes and returns the cultural overlap between n1 and n2
 to-report getCulturalOverlap [ n1 n2 ]
   ;; computes the kronecker's delta of each couple of items of the two corresponding item of the cultural code lists
   ;; then folds it by summing all the values
@@ -92,7 +123,7 @@ to-report getAverageCulturalOverlap [ n1 ]
   report average / f_value
 end
 
-;; move the turtle identified by turtleID in another random empty site
+; move the turtle identified by turtleID in another random empty site
 to move [ turtleID ]
   let newSite one-of turtles with [ emptySite? ]
   ask newSite [ set code [ code ] of turtle turtleID ]
@@ -118,7 +149,7 @@ to redoColor
   [
     ifelse (emptySite?)
     [
-      set pcolor white
+      set color white
     ]
     [
       let hammingDistance getHammingDistance code
@@ -130,11 +161,11 @@ end
 GRAPHICS-WINDOW
 385
 10
-822
-448
+867
+493
 -1
 -1
-13.0
+14.364
 1
 10
 1
@@ -155,15 +186,30 @@ ticks
 30.0
 
 SLIDER
-3
-115
-175
-148
+1
+249
+173
+282
 f_value
 f_value
 1
 100
-1.0
+3.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+183
+249
+355
+282
+q_value
+q_value
+1
+100
+3.0
 1
 1
 NIL
@@ -171,69 +217,54 @@ HORIZONTAL
 
 SLIDER
 185
-115
+297
 357
-148
-q_value
-q_value
-1
-100
-1.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-187
-163
-359
-196
+330
 T_threshold
 T_threshold
 0
 1
-0.4
+0.24
 0.01
 1
 NIL
 HORIZONTAL
 
 SLIDER
-14
-16
-333
-49
+12
+150
+331
+183
 numberOfNodes
 numberOfNodes
 1
 5000
-1393.0
+150.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-13
-65
-333
-98
+11
+199
+331
+232
 averageNodeDegree
 averageNodeDegree
 1
 numberOfNodes - 1
-1.0
+6.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-5
-164
-180
-197
+3
+298
+178
+331
 emptyProbability
 emptyProbability
 0
@@ -243,6 +274,57 @@ emptyProbability
 1
 NIL
 HORIZONTAL
+
+BUTTON
+19
+20
+100
+53
+NIL
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+16
+71
+106
+104
+go-once
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+124
+72
+187
+105
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
