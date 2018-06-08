@@ -1,6 +1,11 @@
+extensions [ palette ]
 ;; f_value = number of cultural traits
 ;; q_value = number of possible values for each cultural trait
 ;; T_treshold = site's tolerance threshold
+
+;; list of available colors and chosen coloros
+;;globals [ colors ]
+
 turtles-own
 [
   emptySite?        ;; if true, the site is not inhabited
@@ -10,12 +15,33 @@ turtles-own
 to setup
   clear-all
   set-default-shape turtles "circle"
-  ;; to create replicable results
+  ;; generates a list of rgb colors as gradient from lime green to red
+  ;;set colors [ [50 205 50] [74 209 47] [100 213 43] [129 218 40] [160 222 36] [194 226 32] [230 230 28] [234 199 24] [238 165 19] [243 129 15] [247 89 10] [251 46 5] [250 0 0] ]
+  ;; to create replicable results uncomment the following line
   random-seed 95199254
 end
 
-
 to go
+end
+
+;; this code comes from the Virus on a Network example in the Netlogo Library.
+;; As the name suggests, it builds spatially clustered networks
+to setup-spatially-clustered-network
+  let num-links (averageNodeDegree * numberOfNodes) / 2
+  while [count links < num-links ]
+  [
+    ask one-of turtles
+    [
+      let choice (min-one-of (other turtles with [not link-neighbor? myself])
+                   [distance myself])
+      if choice != nobody [ create-link-with choice ]
+    ]
+  ]
+  ; make the network look a little prettier
+  repeat 10
+  [
+    layout-spring turtles links 0.3 (world-width / (sqrt numberOfNodes)) 1
+  ]
 end
 
 ;; this is the main Axelrod-Schelling model
@@ -74,6 +100,31 @@ to move [ turtleID ]
   ask newSite [ set emptySite? false ]
   ask turtle turtleID [set emptySite? true]
 end
+
+;; reports the Hamming distance between the cultural code provided as argument and the list made up of f_value zeros
+to-report getHammingDistance [ codeList ]
+  report (reduce + (map [ [a b] -> ifelse-value (a = b) [1] [0] ] codeList n-values f_value [0] ))
+end
+
+;; colors the sites following these rules:
+;; if the site is empty, set the color to white;
+;; otherwise choose an appropriate color in the reverse HSV gradient range from lime green to red.
+;; The more the cultural code is similar to the code made up of zeros, the "greener" is the site.
+;;
+;; The distance used to measure similarity between cultural codes is the Hamming distance
+to redoColor
+  ask turtles
+  [
+    ifelse (emptySite?)
+    [
+      set pcolor white
+    ]
+    [
+      let hammingDistance getHammingDistance code
+      set color palette:scale-gradient [[50 205 50] [250 0 0]] hammingDistance 0 f_value
+    ]
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 385
@@ -103,10 +154,10 @@ ticks
 30.0
 
 SLIDER
-18
-15
-190
-48
+3
+115
+175
+148
 f_value
 f_value
 1
@@ -118,10 +169,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-18
-67
-190
-100
+185
+115
+357
+148
 q_value
 q_value
 1
@@ -133,15 +184,60 @@ NIL
 HORIZONTAL
 
 SLIDER
-19
-116
-191
-149
+187
+163
+359
+196
 T_threshold
 T_threshold
 0
 1
 0.4
+0.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+14
+16
+333
+49
+numberOfNodes
+numberOfNodes
+1
+5000
+1393.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+13
+65
+333
+98
+averageNodeDegree
+averageNodeDegree
+1
+numberOfNodes - 1
+1.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+164
+180
+197
+emptyProbability
+emptyProbability
+0
+1
+0.3
 0.01
 1
 NIL
