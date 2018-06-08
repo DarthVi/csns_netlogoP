@@ -1,9 +1,12 @@
 extensions [ palette ]
 
+globals [ changes? ]
+
 turtles-own
 [
   emptySite?        ;; if true, the site is not inhabited
   code              ;; site's cultural code
+  changedOrMoved?   ;; interaction happened
 ]
 
 to setup
@@ -19,8 +22,12 @@ to setup
 end
 
 to go
-  ;axelrodSchelling
-  ;redoColor
+
+  if all? turtles [not changedOrMoved?]
+    [stop]
+
+  axelrodSchelling
+  redoColor
   tick
 end
 
@@ -39,19 +46,23 @@ end
 to initializeNetwork
   ; at least one node must be empty
   ask turtle 0 [ set emptySite? true ]
+  ask turtle 0 [ set changedOrMoved? false ]
 
   ask turtles with [ who != 0 ]
   [
     ifelse random-float 1 <= emptyProbability
     [
       set emptySite? true
+      set changedOrMoved? false
     ]
     [
       set emptySite? false
       ; chose traits at random uniformly
       set code n-values f_value [ i -> random q_value]
+      set changedOrMoved? true
     ]
   ]
+
 end
 
 ; this code comes from the Virus on a Network example in the Netlogo Library.
@@ -79,27 +90,32 @@ to axelrodSchelling
   ask turtles with [ not emptySite?   ]
   [
     ;; if all neighbors are empty, directly move to another empty site
-    ifelse all? link-neighbors [ not emptySite? ]
-      [ move [ who ] of self ]
+    ifelse all? link-neighbors [ emptySite? ]
+      [ move who ]
     [
       let peer one-of link-neighbors with [ not emptySite? ]
 
-      ;; computes the kronecker's delta of each couple of items of the two corresponding item of the cultural code lists
-      ;; then folds it by summing all the values
-      let culturalOverlap getCulturalOverlap self peer
+      ifelse peer != nobody
+      [
+        ;; computes the kronecker's delta of each couple of items of the two corresponding item of the cultural code lists
+        ;; then folds it by summing all the values
+        let culturalOverlap getCulturalOverlap self peer
 
-      ;; with probability equal to cultural overlap copies one trait of the selected peer
-      ifelse random-float 1 <= culturalOverlap
+        ;; with probability equal to cultural overlap copies one trait of the selected peer
+        ifelse random-float 1 <= culturalOverlap
         [
+          set changedOrMoved? true
           let index random f_value
           let trait item index [ code ] of peer
           set code replace-item index code trait
         ]
-      [
-        ;; if the averageCulturalOverlap is lower than the threshold, move to an empty site
-        let averageCulturalOverlap getAverageCulturalOverlap self
-        if averageCulturalOverlap < T_threshold [ move [ who ] of self ]
+        [
+          ;; if the averageCulturalOverlap is lower than the threshold, move to an empty site
+          let averageCulturalOverlap getAverageCulturalOverlap self
+          ifelse averageCulturalOverlap < T_threshold [ move who ] [ set changedOrMoved? false ]
+        ]
       ]
+      [ set changedOrMoved? false ]
     ]
 
   ]
@@ -124,10 +140,12 @@ end
 
 ; move the turtle identified by turtleID in another random empty site
 to move [ turtleID ]
+  ask turtle turtleID [ set changedOrMoved? false ]
   let newSite one-of turtles with [ emptySite? ]
   ask newSite [ set code [ code ] of turtle turtleID ]
   ;set [ code ] of newSite [ code ] of turtle turtleID
   ask newSite [ set emptySite? false ]
+  ask newSite [ set changedOrMoved? true ]
   ask turtle turtleID [set emptySite? true]
 end
 
@@ -160,19 +178,19 @@ end
 GRAPHICS-WINDOW
 385
 10
-867
-493
+852
+478
 -1
 -1
-14.364
+13.91
 1
 10
 1
 1
 1
 0
-1
-1
+0
+0
 1
 -16
 16
