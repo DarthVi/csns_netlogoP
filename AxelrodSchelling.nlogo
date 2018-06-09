@@ -1,42 +1,50 @@
-extensions [ palette ]
+extensions [ palette table ]
+
+; interactions = number of moves or imitations occurred after the execution of the Axelrod-Schelling model
+; layoutsMap = map from layout strings to anonymous functions used to build them
+globals [ interactions layoutsMap]
 
 turtles-own
 [
   emptySite?        ;; if true, the site is not inhabited
   code              ;; site's cultural code
-  changedOrMoved?   ;; interaction happened
 ]
 
 to setup
   clear-all
   ; to create replicable results uncomment the following line
-  ; random-seed 95199254
+  random-seed 95199254
 
-  setupNodes
-  setup-spatially-clustered-network
+  ; builds a map table from layoutChosen string to anonymous functions that build networks;
+  ; this code is used to avoid nested ifelse
+  set layoutsMap table:make
+  table:put layoutsMap "spatially clustered network" [ -> setup-spatially-clustered-network ]
+  table:put layoutsMap "preferential attachment" [ -> setupPreferentialAttachment ]
+
+  set-default-shape turtles "circle"
+  set interactions 0
+
+  ; builds the chosen network layout
+  let setupNetwork table:get layoutsMap layoutChosen
+  run setupNetwork
+
   initializeNetwork
   redoColor
   reset-ticks
 end
 
 to go
-
-  if all? turtles [not changedOrMoved?]
-    [stop]
-
   axelrodSchelling
   redoColor
+
+  show interactions
+
+  if interactions = 0
+    [stop]
+
+  set interactions 0
+
   tick
-end
-
-
-to setupNodes
-  set-default-shape turtles "circle"
-  create-turtles numberOfNodes
-  [
-    ; for visual reasons, we don't put any nodes *too* close to the edges
-    setxy (random-xcor * 0.95) (random-ycor * 0.95)
-  ]
 end
 
 ; Sets at least one node empty, other nodes are empty with a specific probability.
@@ -44,20 +52,17 @@ end
 to initializeNetwork
   ; at least one node must be empty
   ask turtle 0 [ set emptySite? true ]
-  ask turtle 0 [ set changedOrMoved? false ]
 
   ask turtles with [ who != 0 ]
   [
     ifelse random-float 1 <= emptyProbability
     [
       set emptySite? true
-      set changedOrMoved? false
     ]
     [
       set emptySite? false
       ; chose traits at random uniformly
       set code n-values f_value [ i -> random q_value]
-      set changedOrMoved? true
     ]
   ]
 
@@ -66,6 +71,13 @@ end
 ; this code comes from the Virus on a Network example in the Netlogo Library.
 ; As the name suggests, it builds spatially clustered networks
 to setup-spatially-clustered-network
+
+  create-turtles numberOfNodes
+  [
+    ; for visual reasons, we don't put any nodes *too* close to the edges
+    setxy (random-xcor * 0.95) (random-ycor * 0.95)
+  ]
+
   let num-links (averageNodeDegree * numberOfNodes) / 2
   while [count links < num-links ]
   [
@@ -100,7 +112,8 @@ to axelrodSchelling
       ;; with probability equal to cultural overlap copies one trait of the selected peer
       ifelse random-float 1 <= culturalOverlap
       [
-        set changedOrMoved? true
+        if culturalOverlap != 1 [set interactions interactions + 1]
+
         let index random f_value
         let trait item index [ code ] of peer
         set code replace-item index code trait
@@ -108,7 +121,7 @@ to axelrodSchelling
       [
         ;; if the averageCulturalOverlap is lower than the threshold, move to an empty site
         let averageCulturalOverlap getAverageCulturalOverlap self
-        ifelse averageCulturalOverlap < T_threshold [ move who ] [ set changedOrMoved? false ]
+        if averageCulturalOverlap < T_threshold [ move who ]
       ]
     ]
 
@@ -134,12 +147,11 @@ end
 
 ; move the turtle identified by turtleID in another random empty site
 to move [ turtleID ]
-  ask turtle turtleID [ set changedOrMoved? false ]
+  set interactions interactions + 1
   let newSite one-of turtles with [ emptySite? ]
   ask newSite [ set code [ code ] of turtle turtleID ]
   ;set [ code ] of newSite [ code ] of turtle turtleID
   ask newSite [ set emptySite? false ]
-  ask newSite [ set changedOrMoved? true ]
   ask turtle turtleID [set emptySite? true]
 end
 
@@ -167,6 +179,72 @@ to redoColor
       set color palette:scale-gradient [[50 205 50] [250 0 0]] hammingDistance 0 f_value
     ]
   ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; This next section is a slightly modified version of the Preferential Attachment netlogo example present in the library;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; used for creating a new node
+to make-node [old-node]
+  create-turtles 1
+  [
+    if old-node != nobody
+      [ create-link-with old-node
+        ;; position the new node near its partner
+        move-to old-node
+        fd 8
+      ]
+  ]
+end
+
+;; This code is the heart of the "preferential attachment" mechanism, and acts like
+;; a lottery where each node gets a ticket for every connection it already has.
+;; While the basic idea is the same as in the Lottery Example (in the Code Examples
+;; section of the Models Library), things are made simpler here by the fact that we
+;; can just use the links as if they were the "tickets": we first pick a random link,
+;; and than we pick one of the two ends of that link.
+to-report find-partner
+  report [one-of both-ends] of one-of links
+end
+
+to layout
+  ;; the number 3 here is arbitrary; more repetitions slows down the
+  ;; model, but too few gives poor layouts
+  repeat 3 [
+    ;; the more turtles we have to fit into the same amount of space,
+    ;; the smaller the inputs to layout-spring we'll need to use
+    let factor sqrt count turtles
+    ;; numbers here are arbitrarily chosen for pleasing appearance
+    layout-spring turtles links (1 / factor) (7 / factor) (1 / factor)
+    display  ;; for smooth animation
+  ]
+  ;; don't bump the edges of the world
+  let x-offset max [xcor] of turtles + min [xcor] of turtles
+  let y-offset max [ycor] of turtles + min [ycor] of turtles
+  ;; big jumps look funny, so only adjust a little each time
+  set x-offset limit-magnitude x-offset 0.1
+  set y-offset limit-magnitude y-offset 0.1
+  ask turtles [ setxy (xcor - x-offset / 2) (ycor - y-offset / 2) ]
+end
+
+to-report limit-magnitude [number limit]
+  if number > limit [ report limit ]
+  if number < (- limit) [ report (- limit) ]
+  report number
+end
+
+to setupPreferentialAttachment
+  make-node nobody
+  make-node turtle 0
+
+  repeat numberOfNodes - 2
+  [
+    make-node find-partner
+    layout
+  ]
+
+  repeat 20 [ layout ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -235,7 +313,7 @@ T_threshold
 T_threshold
 0
 1
-0.24
+0.76
 0.01
 1
 NIL
@@ -287,10 +365,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-19
-20
-100
-53
+35
+73
+116
+106
 NIL
 setup
 NIL
@@ -304,10 +382,10 @@ NIL
 1
 
 BUTTON
-16
-71
+151
+73
+241
 106
-104
 go-once
 go
 NIL
@@ -321,10 +399,10 @@ NIL
 0
 
 BUTTON
-124
-72
-187
-105
+259
+73
+322
+106
 NIL
 go
 T
@@ -335,6 +413,16 @@ NIL
 NIL
 NIL
 NIL
+0
+
+CHOOSER
+14
+11
+256
+56
+layoutChosen
+layoutChosen
+"spatially clustered network" "preferential attachment"
 0
 
 @#$#@#$#@
