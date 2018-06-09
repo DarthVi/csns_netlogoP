@@ -155,9 +155,9 @@ to move [ turtleID ]
   ask turtle turtleID [set emptySite? true]
 end
 
-;; reports the Hamming distance between the cultural code provided as argument and the list made up of f_value zeros
-to-report getHammingDistance [ codeList ]
-  report (reduce + (map [ [a b] -> ifelse-value (a != b) [1] [0] ] codeList n-values f_value [0] ))
+;; reports a slightly modified version of the Hamming distance between the cultural code provided as argument and the list made up of f_value zeros
+to-report getModifiedHammingDistance [ codeList ]
+  report (reduce + (map [ [a b] -> ifelse-value (a != b) [a] [0] ] codeList n-values f_value [0] ))
 end
 
 ;; colors the sites following these rules:
@@ -166,7 +166,7 @@ end
 ;; The more the cultural code is similar to the code made up of zeros, the "greener" is the site.
 ;; First and last rgb value picked from https://www.colorhexa.com/32cd32-to-ff0000
 ;;
-;; The distance used to measure similarity between cultural codes is the Hamming distance
+;; The distance used to measure similarity between cultural codes is a modified version of the Hamming distance
 to redoColor
   ask turtles
   [
@@ -175,8 +175,8 @@ to redoColor
       set color white
     ]
     [
-      let hammingDistance getHammingDistance code
-      set color palette:scale-gradient [[50 205 50] [250 0 0]] hammingDistance 0 f_value
+      let hammingDistance getModifiedHammingDistance code
+      set color palette:scale-gradient [[50 205 50] [250 0 0]] hammingDistance 0 (f_value * q_value)
     ]
   ]
 end
@@ -313,7 +313,7 @@ T_threshold
 T_threshold
 0
 1
-0.76
+0.51
 0.01
 1
 NIL
