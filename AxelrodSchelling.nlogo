@@ -2,7 +2,7 @@ extensions [ palette table ]
 
 ; interactions = number of moves or imitations occurred after the execution of the Axelrod-Schelling model
 ; layoutsMap = map from layout strings to anonymous functions used to build them
-globals [ interactions layoutsMap]
+globals [ interactions layoutsMap editDistanceMap]
 
 turtles-own
 [
@@ -20,6 +20,11 @@ to setup
   set layoutsMap table:make
   table:put layoutsMap "spatially clustered network" [ -> setup-spatially-clustered-network ]
   table:put layoutsMap "preferential attachment" [ -> setupPreferentialAttachment ]
+
+  ; builds a map from a chosen edit distance mechanism and the anonymous function used to compute it
+  set editDistanceMap table:make
+  table:put editDistanceMap "modified Hamming distance" [ [ a ] -> getModifiedHammingDistance a ]
+  table:put editDistanceMap "cosine similarity" [ [ a ] -> getCosineDistance a ]
 
   set-default-shape turtles "circle"
   set interactions 0
@@ -155,9 +160,31 @@ to move [ turtleID ]
   ask turtle turtleID [set emptySite? true]
 end
 
-;; reports a slightly modified version of the Hamming distance between the cultural code provided as argument and the list made up of f_value zeros
+; computes the Euclidean norm of a list of values
+to-report normalize [ n ]
+  report sqrt ( reduce + ( map [ [ a ]  -> a * a ] n ) )
+end
+
+; computes the dot product between two lists of values
+to-report dotProduct [ n1 n2 ]
+  report ( reduce + ( map [ [ a b] -> a * b ] n1 n1) )
+end
+
+; computes the cosine similarity
+to-report getCosineSimilarity [ n1 n2 ]
+  report ( dotProduct n1 n2 ) / ( normalize n1 * normalize n2 + 0.000000001) ;; bias to prevent division by zero
+end
+
+to-report getCosineDistance [ codeList ]
+  report getCosineSimilarity codeList n-values f_value [0]
+end
+
+;; Reports a modified version of the Hamming distance between the cultural code provided as argument and the list made up of f_value zeros.
+;; Instead of counting the number of differente values between the code given and a string of zeros, it sums the different values in the correspondinc positions
+;; and the positions themselves. We need this last correction to distinguish between codes like [0 0 9 9] and [9 9 0 0].
 to-report getModifiedHammingDistance [ codeList ]
-  report (reduce + (map [ [a b] -> ifelse-value (a != b) [a] [0] ] codeList n-values f_value [0] ))
+  let positions n-values f_value [ i -> i]
+  report (reduce + (map [ [a b c] -> ifelse-value (a != b) [a + c] [0] ] codeList n-values f_value [0] positions))
 end
 
 ;; colors the sites following these rules:
@@ -166,7 +193,7 @@ end
 ;; The more the cultural code is similar to the code made up of zeros, the "greener" is the site.
 ;; First and last rgb value picked from https://www.colorhexa.com/32cd32-to-ff0000
 ;;
-;; The distance used to measure similarity between cultural codes is a modified version of the Hamming distance
+;; The distance used to measure similarity between cultural codes is the one chosen by the user in the interface
 to redoColor
   ask turtles
   [
@@ -175,8 +202,15 @@ to redoColor
       set color white
     ]
     [
-      let hammingDistance getModifiedHammingDistance code
-      set color palette:scale-gradient [[50 205 50] [250 0 0]] hammingDistance 0 (f_value * q_value)
+      let distanceChosen table:get editDistanceMap editDistance
+      let codeDistance  ( runresult  distanceChosen code )
+
+      ;; minimum value possible is 0, maximum value is f_value times (q_value - 1) + (f_value - 1) (because of the positions)
+      if editDistance = "modified Hamming distance"
+      [ set color palette:scale-gradient [[50 205 50] [250 0 0]] codeDistance 0 (f_value * (q_value - 1) + (f_value - 1)) ]
+
+      if editDistance = "cosine similarity"
+      [ set color palette:scale-gradient [[50 205 50] [250 0 0]] codeDistance -1 1 ]
     ]
   ]
 end
@@ -275,10 +309,10 @@ ticks
 30.0
 
 SLIDER
-1
-249
-173
-282
+12
+371
+184
+404
 f_value
 f_value
 1
@@ -290,10 +324,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-183
-249
-355
-282
+194
+371
+366
+404
 q_value
 q_value
 1
@@ -305,10 +339,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-185
-297
-357
-330
+196
+419
+368
+452
 T_threshold
 T_threshold
 0
@@ -320,10 +354,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-12
-150
-331
-183
+17
+218
+336
+251
 numberOfNodes
 numberOfNodes
 1
@@ -335,10 +369,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-11
-199
-331
-232
+16
+267
+336
+300
 averageNodeDegree
 averageNodeDegree
 1
@@ -350,10 +384,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-3
-298
-178
-331
+14
+420
+189
+453
 emptyProbability
 emptyProbability
 0
@@ -423,6 +457,43 @@ CHOOSER
 layoutChosen
 layoutChosen
 "spatially clustered network" "preferential attachment"
+0
+
+TEXTBOX
+23
+308
+323
+374
+averageNodeDegree is taken in consideration only for the spatially clustered layout, not for preferential attachment
+12
+0.0
+1
+
+CHOOSER
+15
+480
+263
+525
+editDistance
+editDistance
+"modified Hamming distance" "cosine similarity"
+0
+
+BUTTON
+34
+131
+139
+164
+redo color
+redoColor
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 0
 
 @#$#@#$#@
