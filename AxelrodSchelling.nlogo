@@ -2,7 +2,7 @@ extensions [ palette table ]
 
 ; interactions = number of moves or imitations occurred after the execution of the Axelrod-Schelling model
 ; layoutsMap = map from layout strings to anonymous functions used to build them
-globals [ interactions layoutsMap editDistanceMap]
+globals [ interactions layoutsMap editDistanceMap standardColors colorMapping]
 
 turtles-own
 [
@@ -27,6 +27,9 @@ to setup
   table:put editDistanceMap "cosine similarity" [ [ a ] -> getCosineDistance a ]
 
   set-default-shape turtles "circle"
+  ; list of standard colors to use if we want to color different values for a single cultural trait
+  set standardColors sort sentence n-values 13 [i -> 13 + 10 * i] n-values 13 [i -> 15 + 10 * i]
+  set colorMapping n-of q_value standardColors
   set interactions 0
 
   ; builds the chosen network layout
@@ -39,6 +42,7 @@ to setup
 end
 
 to go
+  clear-output
   axelrodSchelling
   redoColor
 
@@ -195,22 +199,45 @@ end
 ;;
 ;; The distance used to measure similarity between cultural codes is the one chosen by the user in the interface
 to redoColor
-  ask turtles
+
+  ifelse colorSingleTrait = false or q_value > 26
   [
-    ifelse (emptySite?)
+    ask turtles
     [
-      set color white
+      ifelse (emptySite?)
+      [
+        set color white
+      ]
+      [
+        let distanceChosen table:get editDistanceMap editDistance
+        let codeDistance  ( runresult  distanceChosen code )
+
+        ;; minimum value possible is 0, maximum value is f_value times (q_value - 1) + (f_value - 1) (because of the positions)
+        if editDistance = "modified Hamming distance"
+        [ set color palette:scale-gradient [[50 205 50] [250 0 0]] codeDistance 0 (f_value * (q_value - 1) + (f_value - 1)) ]
+
+        if editDistance = "cosine similarity"
+        [ set color palette:scale-gradient [[50 205 50] [250 0 0]] codeDistance -1 1 ]
+      ]
     ]
+  ]
+  [
+    output-print (word "Trait chosen: " traitChosen ", out of " q_value " values")
+    output-print "These are the color values assigned (for detailes, see Tools->Color Watches)"
+    let i 0
+    foreach colorMapping
     [
-      let distanceChosen table:get editDistanceMap editDistance
-      let codeDistance  ( runresult  distanceChosen code )
+      c -> output-print (word "Color for value " i ": " c)
+      set i i + 1
+    ]
 
-      ;; minimum value possible is 0, maximum value is f_value times (q_value - 1) + (f_value - 1) (because of the positions)
-      if editDistance = "modified Hamming distance"
-      [ set color palette:scale-gradient [[50 205 50] [250 0 0]] codeDistance 0 (f_value * (q_value - 1) + (f_value - 1)) ]
-
-      if editDistance = "cosine similarity"
-      [ set color palette:scale-gradient [[50 205 50] [250 0 0]] codeDistance -1 1 ]
+    ask turtles
+    [
+      ifelse (emptySite?)
+      [ set color white ]
+      [
+        set color ( item (item traitChosen code) colorMapping )
+      ]
     ]
   ]
 end
@@ -495,6 +522,49 @@ NIL
 NIL
 NIL
 0
+
+SWITCH
+174
+133
+343
+166
+colorSingleTrait
+colorSingleTrait
+1
+1
+-1000
+
+SLIDER
+17
+577
+235
+610
+traitChosen
+traitChosen
+0
+q_value - 1
+2.0
+1
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+20
+533
+286
+569
+traitChosen used only if colorSingelTrait is On. In this case, editDistance is ignored
+12
+0.0
+1
+
+OUTPUT
+913
+19
+1594
+153
+14
 
 @#$#@#$#@
 ## WHAT IS IT?
