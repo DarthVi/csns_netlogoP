@@ -210,8 +210,7 @@ end
 ;; First and last rgb value picked from https://www.colorhexa.com/32cd32-to-ff0000
 ;;
 ;; The distance used to measure similarity between cultural codes is the one chosen by the user in the interface
-;;
-;; If instead, the user decides to color code values on a single trait basis, use randomly assigned colors to this specific trait values
+
 to redoColor
 
   ifelse colorSingleTrait = false or q_value > 26
