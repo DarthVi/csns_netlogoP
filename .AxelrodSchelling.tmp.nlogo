@@ -367,11 +367,11 @@ end
 GRAPHICS-WINDOW
 385
 10
-852
-478
+990
+616
 -1
 -1
-13.91
+9.185
 1
 10
 1
@@ -381,10 +381,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--16
-16
--16
-16
+-32
+32
+-32
+32
 0
 0
 1
@@ -616,16 +616,16 @@ traitChosen used only if colorSingelTrait is On. In this case, editDistance is i
 1
 
 OUTPUT
-913
+1038
 19
-1594
+1719
 153
 14
 
 SWITCH
-931
+1056
 166
-1154
+1279
 199
 fixedRandomSeed
 fixedRandomSeed
@@ -634,9 +634,9 @@ fixedRandomSeed
 -1000
 
 PLOT
-872
+997
 211
-1277
+1402
 451
 Network status
 time
@@ -653,9 +653,9 @@ PENS
 "codes" 1.0 0 -2674135 true "" "plot codeCounter"
 
 PLOT
-1340
+1465
 211
-1763
+1888
 455
 Cultural codes
 codes
