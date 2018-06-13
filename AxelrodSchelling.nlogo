@@ -2,7 +2,7 @@ extensions [ palette table ]
 
 ; interactions = number of moves or imitations occurred after the execution of the Axelrod-Schelling model
 ; layoutsMap = map from layout strings to anonymous functions used to build them
-globals [ interactions layoutsMap editDistanceMap standardColors colorMapping]
+globals [ interactions layoutsMap editDistanceMap standardColors colorMapping emptyCounter codeCounter codeTable plotInteractionCounter ]
 
 turtles-own
 [
@@ -25,33 +25,49 @@ to setup
   table:put editDistanceMap "modified Hamming distance" [ [ a ] -> getModifiedHammingDistance a ]
   table:put editDistanceMap "cosine similarity" [ [ a ] -> getCosineDistance a ]
 
-  set-default-shape turtles "circle"
-  ; list of standard colors to use if we want to color different values for a single cultural trait
-  set standardColors sort sentence n-values 13 [i -> 13 + 10 * i] n-values 13 [i -> 15 + 10 * i]
-  set colorMapping n-of q_value standardColors
+  set codeTable table:make
 
-  resetRngSeed
+  set-default-shape turtles "circle"
+  ; this commands do not affect subsequent random events
+  with-local-randomness
+  [
+    ; list of standard colors to use if we want to color different values for a single cultural trait
+    set standardColors sort sentence n-values 13 [i -> 13 + 10 * i] n-values 13 [i -> 15 + 10 * i]
+    set colorMapping n-of q_value standardColors
+  ]
+
   set interactions 0
+  set codeCounter 0
 
   ; builds the chosen network layout
   let setupNetwork table:get layoutsMap layoutChosen
   run setupNetwork
 
   initializeNetwork
+
+  set emptyCounter count turtles with [ emptySite? ]
+
   redoColor
   reset-ticks
 end
 
 to go
   clear-output
+  with-local-randomness [ registerCodeStats ]
   axelrodSchelling
-  redoColor
+  ;redoColor
+  with-local-randomness [ redoColor ]
 
   show interactions
 
   if interactions = 0
-    [stop]
+    [
+      set plotInteractionCounter interactions
+      stop
+    ]
 
+  ; we need another variable to save the old counter value, otherwise the plot will always show zero because interactions gets resetted at the end of the cycle
+  set plotInteractionCounter interactions
   set interactions 0
 
   tick
@@ -87,6 +103,7 @@ to initializeNetwork
     ]
   ]
 
+  set emptyCounter count turtles with [ emptySite? ]
 end
 
 ; this code comes from the Virus on a Network example in the Netlogo Library.
@@ -320,6 +337,31 @@ to setupPreferentialAttachment
   ]
 
   repeat 20 [ layout ]
+end
+
+;; counts how many different cultural codes there are in the network. Moreover it stores this codes
+;; in a table with their presence counter.
+to registerCodeStats
+  set codeCounter 0
+
+  table:clear codeTable
+
+  let inhabitedSites turtles with [ not emptySite? ]
+
+  ask inhabitedSites
+  [
+    let currentCode code
+
+    let equalsSites turtles with [ code = currentCode ]
+
+    ; set codeCounter codeCounter + count equalsSites
+
+    table:put codeTable currentCode count equalsSites
+
+    set inhabitedSites turtles with [ code != currentCode ]
+  ]
+
+  set codeCounter table:length codeTable
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -590,6 +632,42 @@ fixedRandomSeed
 0
 1
 -1000
+
+PLOT
+872
+211
+1277
+451
+Network status
+time
+# counters
+0.0
+100.0
+0.0
+100.0
+true
+true
+"" ""
+PENS
+"interactions" 1.0 0 -16777216 true "" "plot plotInteractionCounter"
+"codes" 1.0 0 -2674135 true "" "plot codeCounter"
+
+PLOT
+1340
+211
+1763
+455
+Cultural codes
+codes
+number of nodes
+0.0
+30.0
+0.0
+100.0
+true
+true
+"\n" "clear-plot\nlet keys table:keys codeTable\nwith-local-randomness\n[\n   let plotColors sentence n-values 13 [i -> 13 + 10 * i] n-values 13 [i -> 15 + 10 * i]\n   \n   (foreach keys [ k -> \n                     create-temporary-plot-pen (word k \"\")\n                     set-plot-pen-color one-of plotColors\n                     set-plot-pen-mode 1\n                     plotxy (position k keys + 1) table:get codeTable k ])\n]"
+PENS
 
 @#$#@#$#@
 ## WHAT IS IT?
