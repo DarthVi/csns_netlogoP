@@ -8,6 +8,7 @@ turtles-own
 [
   emptySite?        ;; if true, the site is not inhabited
   code              ;; site's cultural code
+  omega             ;; site's average cultural overlap, USED FOR STATS PURPOSES ONLY. The main protocol model calls every time the appropriate function to get updated fresh values.
 ]
 
 to setup
@@ -60,6 +61,7 @@ to go
 
   show interactions
 
+  with-local-randomness [ collectAverageOverlap ]
   if interactions = 0
     [
       set plotInteractionCounter interactions
@@ -88,7 +90,11 @@ end
 ; Then non empty sites get a random cultural code.
 to initializeNetwork
   ; at least one node must be empty
-  ask turtle 0 [ set emptySite? true ]
+  ask turtle 0
+  [
+    set emptySite? true
+    set omega 0
+  ]
 
   ask turtles with [ who != 0 ]
   [
@@ -101,6 +107,7 @@ to initializeNetwork
       ; chose traits at random uniformly
       set code n-values f_value [ i -> random q_value]
     ]
+    set omega 0
   ]
 
   set emptyCounter count turtles with [ emptySite? ]
@@ -180,7 +187,7 @@ to-report getAverageCulturalOverlap [ n1 ]
   [
     set average average + getCulturalOverlap n1 self
   ]
-  report average / f_value
+  report average / count link-neighbors with [ not emptySite? ]
 end
 
 ; move the turtle identified by turtleID in another random empty site
@@ -363,15 +370,44 @@ to registerCodeStats
 
   set codeCounter table:length codeTable
 end
+
+;; computes and stores the average cultural overlap for each site
+to collectAverageOverlap
+  ask turtles with [not emptySite?]
+  [
+    if any? link-neighbors with [ not emptySite? ]
+    [
+      let averageCulturalOverlap getAverageCulturalOverlap self
+      set omega averageCulturalOverlap
+    ]
+  ]
+end
+
+to colorOmegaLessThanOne
+  ask turtles with [ emptySite? ]
+  [
+    set color white
+  ]
+
+  ask turtles with [ not emptySite?  and  omega = 1]
+  [
+    set color blue
+  ]
+
+  ask turtles with [ not emptySite? and omega < 1]
+  [
+    set color yellow
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 385
 10
-990
-616
+974
+600
 -1
 -1
-9.185
+8.94
 1
 10
 1
@@ -445,7 +481,7 @@ numberOfNodes
 numberOfNodes
 1
 5000
-150.0
+346.0
 1
 1
 NIL
@@ -586,7 +622,7 @@ SWITCH
 166
 colorSingleTrait
 colorSingleTrait
-0
+1
 1
 -1000
 
@@ -623,10 +659,10 @@ OUTPUT
 14
 
 SWITCH
-1056
-166
-1279
-199
+17
+627
+240
+660
 fixedRandomSeed
 fixedRandomSeed
 0
@@ -634,10 +670,10 @@ fixedRandomSeed
 -1000
 
 PLOT
-997
-211
-1402
-451
+994
+166
+1412
+434
 Network status
 time
 # counters
@@ -650,13 +686,13 @@ true
 "" ""
 PENS
 "interactions" 1.0 0 -16777216 true "" "plot plotInteractionCounter"
-"codes" 1.0 0 -2674135 true "" "plot codeCounter"
+"number of different codes" 1.0 0 -2674135 true "" "plot codeCounter"
 
 PLOT
-1465
-211
-1888
-455
+1450
+166
+1885
+434
 Cultural codes
 codes
 number of nodes
@@ -668,6 +704,75 @@ true
 true
 "\n" "clear-plot\nlet keys table:keys codeTable\nwith-local-randomness\n[\n   let plotColors sentence n-values 13 [i -> 13 + 10 * i] n-values 13 [i -> 15 + 10 * i]\n   \n   (foreach keys [ k -> \n                     create-temporary-plot-pen (word k \"\")\n                     set-plot-pen-color one-of plotColors\n                     set-plot-pen-mode 1\n                     plotxy (position k keys + 1) table:get codeTable k ])\n]"
 PENS
+
+PLOT
+992
+465
+1441
+728
+Cultural average overlaps
+average overlap counter
+counter
+0.0
+100.0
+0.0
+100.0
+true
+true
+"" "clear-plot\nwith-local-randomness\n[\n   let plotColors sentence n-values 13 [i -> 13 + 10 * i] n-values 13 [i -> 15 + 10 * i]\n   let sites turtles with [ not emptySite? ]\n   let i 1\n   \n   ask sites\n   [\n      let tOmega omega\n      create-temporary-plot-pen (word tOmega \"\")\n      set-plot-pen-color one-of plotColors\n      set-plot-pen-mode 1\n      plotxy i count sites with [ omega = tOmega ]\n      set i i + 1.5\n      set sites turtles with [ omega != tOmega ]\n   ]\n]"
+PENS
+
+PLOT
+1452
+468
+1885
+730
+Cultural average overlaps scatter plot
+site ID
+average overlap
+0.0
+100.0
+0.0
+1.5
+true
+false
+"" "clear-plot\nwith-local-randomness\n[\n    ask turtles with [not emptySite?]\n    [\n       create-temporary-plot-pen \"scatter\"\n       set-plot-pen-color black\n       set-plot-pen-mode 2\n       plotxy who omega\n    ]\n]"
+PENS
+
+PLOT
+438
+614
+918
+803
+ratio of sites with average overlap < 1
+time
+(#overlap<1) / #sites
+0.0
+100.0
+0.0
+1.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -2674135 true "" "plot count turtles with [not emptySite? and omega < 1] / count turtles with [not emptySite?]"
+
+BUTTON
+9
+682
+299
+715
+color sites with average overlap < 1
+colorOmegaLessThanOne
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
