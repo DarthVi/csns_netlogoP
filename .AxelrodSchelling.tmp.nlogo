@@ -1,8 +1,9 @@
-extensions [ palette table ]
+extensions [ palette table nw ]
 
 ; interactions = number of moves or imitations occurred after the execution of the Axelrod-Schelling model
 ; layoutsMap = map from layout strings to anonymous functions used to build them
-globals [ interactions layoutsMap editDistanceMap standardColors colorMapping emptyCounter codeCounter codeTable plotInteractionCounter ]
+globals [ interactions layoutsMap editDistanceMap standardColors colorMapping emptyCounter codeCounter codeTable
+         plotInteractionCounter clusteringCoefficient density degree averagePathLength diameter ]
 
 turtles-own
 [
@@ -39,12 +40,26 @@ to setup
 
   set interactions 0
   set codeCounter 0
+  set clusteringCoefficient 0
+  set density 0
+  set degree 0
+  set averagePathLength 0
+  set diameter 0
 
   ; builds the chosen network layout
   let setupNetwork table:get layoutsMap layoutChosen
   run setupNetwork
 
   initializeNetwork
+
+  with-local-randomness
+  [
+    set clusteringCoefficient mean [ nw:clustering-coefficient ] of turtles
+    calculateAveragePathLength
+    calculateDiameter
+  ]
+  set degree mean [count my-links] of turtles
+  calculateDensity
 
   set emptyCounter count turtles with [ emptySite? ]
 
@@ -59,7 +74,7 @@ to go
   ;redoColor
   with-local-randomness [ redoColor ]
 
-  show interactions
+  ; show interactions
 
   with-local-randomness [ collectAverageOverlap ]
   if interactions = 0
@@ -398,6 +413,25 @@ to colorOmegaLessThanOne
   [
     set color yellow
   ]
+end
+
+;; calculates the edge density
+to calculateDensity
+  set density 2 * (count links) / ( (count turtles) * (-1 + count turtles))
+end
+
+to calculateAveragePathLength
+  let meanPathLength nw:mean-path-length
+
+  ifelse meanPathlength = false
+  [set averagePathLength "infinity"]
+  [set averagePathLength meanPathLength]
+end
+
+to calculateDiameter
+  ifelse member? false
+  [set diameter "infinity"]
+  [set diameter max [ max [ nw:distance-to myself ] of other turtles ] of turtles]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -773,6 +807,71 @@ NIL
 NIL
 NIL
 0
+
+TEXTBOX
+77
+728
+266
+773
+shows in yellow sites with average omega < 1
+12
+0.0
+1
+
+MONITOR
+992
+737
+1152
+782
+Clustering coefficient
+clusteringCoefficient
+17
+1
+11
+
+MONITOR
+1172
+737
+1330
+782
+Density
+density
+17
+1
+11
+
+MONITOR
+1345
+738
+1518
+783
+Average degree
+degree
+17
+1
+11
+
+MONITOR
+1530
+737
+1695
+782
+Average path length
+averagePathLength
+17
+1
+11
+
+MONITOR
+1713
+737
+1871
+782
+Diameter
+diameter
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
