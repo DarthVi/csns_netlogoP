@@ -433,6 +433,28 @@ to calculateDiameter
   [set diameter "infinity"]
   [set diameter max [ max [ nw:distance-to myself ] of other turtles ] of turtles]
 end
+
+;; color communities found using the Louvain algorithm
+to colorCommunities
+  with-local-randomness
+  [
+    let communities nw:louvain-communities
+    let colors sublist (sentence standardColors white grey) 0 (length communities)
+    (foreach communities colors [ [community col] ->
+      ask community [ set color col ] ])
+  ]
+end
+
+;; color connected components
+to colorComponents
+  with-local-randomness
+  [
+    let components nw:weak-component-clusters
+    let colors sublist (sentence shuffle standardColors white grey) 0 (length components)
+    (foreach components colors [ [component col] ->
+      ask component [ set color col ] ])
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 385
@@ -633,10 +655,10 @@ editDistance
 0
 
 BUTTON
-34
-131
-139
-164
+32
+115
+137
+148
 redo color
 redoColor
 NIL
@@ -650,10 +672,10 @@ NIL
 0
 
 SWITCH
-174
-133
-343
-166
+172
+117
+341
+150
 colorSingleTrait
 colorSingleTrait
 1
@@ -809,10 +831,10 @@ NIL
 0
 
 TEXTBOX
-77
-728
-266
-773
+256
+684
+420
+705
 shows in yellow sites with average omega < 1
 12
 0.0
@@ -872,6 +894,57 @@ diameter
 17
 1
 11
+
+BUTTON
+33
+158
+137
+191
+redo-layout
+layout
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+9
+729
+232
+762
+Color Louvain communities
+colorCommunities
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+244
+728
+411
+761
+Color components
+colorComponents
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
