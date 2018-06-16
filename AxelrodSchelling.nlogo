@@ -57,9 +57,9 @@ to setup
     set clusteringCoefficient mean [ nw:clustering-coefficient ] of turtles
     calculateAveragePathLength
     calculateDiameter
+    set degree mean [count my-links] of turtles
+    calculateDensity
   ]
-  set degree mean [count my-links] of turtles
-  calculateDensity
 
   set emptyCounter count turtles with [ emptySite? ]
 
@@ -429,7 +429,7 @@ to calculateAveragePathLength
 end
 
 to calculateDiameter
-  ifelse member? false [[ nw:distance-to myself ] of other turtles ] of turtles
+  ifelse member? false reduce [ [a b] -> sentence a b] [[ nw:distance-to myself ] of other turtles ] of turtles
   [set diameter "infinity"]
   [set diameter max [ max [ nw:distance-to myself ] of other turtles ] of turtles]
 end
