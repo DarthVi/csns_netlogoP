@@ -5,6 +5,8 @@ extensions [ palette table nw ]
 globals [ interactions layoutsMap editDistanceMap standardColors colorMapping emptyCounter codeCounter codeTable
          plotInteractionCounter clusteringCoefficient density degree averagePathLength diameter ]
 
+undirected-link-breed [ undirected-edges undirected-edge ]
+
 turtles-own
 [
   emptySite?        ;; if true, the site is not inhabited
@@ -21,6 +23,9 @@ to setup
   set layoutsMap table:make
   table:put layoutsMap "spatially clustered network" [ -> setup-spatially-clustered-network ]
   table:put layoutsMap "preferential attachment" [ -> setupPreferentialAttachment ]
+  table:put layoutsMap "Erdős–Rényi random network model" [ -> setupErdosRenyi ]
+  table:put layoutsMap "Watts-Strogatz small world" [ -> setupWattsStrogatz ]
+  table:put layoutsMap "Kleinberg model" [ -> setupKleinberg]
 
   ; builds a map from a chosen edit distance mechanism and the anonymous function used to compute it
   set editDistanceMap table:make
@@ -39,6 +44,7 @@ to setup
   ]
 
   set interactions 0
+  ;sets values used for stats purposes
   set codeCounter 0
   set clusteringCoefficient 0
   set density 0
@@ -342,6 +348,14 @@ to layout
   ask turtles [ setxy (xcor - x-offset / 2) (ycor - y-offset / 2) ]
 end
 
+;; the UI and the code now use layout, this is for testing purposes when the previous procedure does not yield satisfactory results
+to springLayout
+  let factor sqrt count turtles
+    if factor = 0 [ set factor 1 ]
+    layout-spring turtles links (1 / factor) (14 / factor) (1.5 / factor)
+    display
+end
+
 to-report limit-magnitude [number limit]
   if number > limit [ report limit ]
   if number < (- limit) [ report (- limit) ]
@@ -359,6 +373,36 @@ to setupPreferentialAttachment
   ]
 
   repeat 20 [ layout ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; generates a network following the Erdős–Rényi model
+to setupErdosRenyi
+  nw:generate-random turtles link numberOfNodes n-probability
+  layout-circle sort turtles max-pxcor * 0.9
+end
+
+; generates a network following the Watts-Strogatz model
+to setupWattsStrogatz
+  nw:generate-watts-strogatz turtles undirected-edges numberOfNodes 2 n-probability
+  ; William Thomas Tutte's layout
+  layout-circle sort turtles max-pxcor * 0.9
+  layout-tutte max-n-of (count turtles * 0.5) turtles [ count my-links ] links 12
+end
+
+;; generates a network following the Kleinberg model
+to setupKleinberg
+  let dim 0
+
+  ; to simplify things, we round up the square root of selected numberOfNodes (the algorithm works by first building a lattice rows * columns)
+  set dim round sqrt numberOfNodes
+  set numberOfNodes dim * dim
+
+  nw:generate-small-world turtles undirected-edges dim dim 2.0 false
+  ; William Thomas Tutte's layout
+  layout-circle sort turtles max-pxcor * 0.9
+  layout-tutte max-n-of (count turtles * 0.5) turtles [ count my-links ] links 12
 end
 
 ;; counts how many different cultural codes there are in the network. Moreover it stores this codes
@@ -537,7 +581,7 @@ numberOfNodes
 numberOfNodes
 1
 5000
-346.0
+100.0
 1
 1
 NIL
@@ -627,19 +671,19 @@ NIL
 CHOOSER
 14
 11
-256
+319
 56
 layoutChosen
 layoutChosen
-"spatially clustered network" "preferential attachment"
-0
+"spatially clustered network" "preferential attachment" "Erdős–Rényi random network model" "Watts-Strogatz small world" "Kleinberg model"
+2
 
 TEXTBOX
 23
 308
 323
 374
-averageNodeDegree is taken in consideration only for the spatially clustered layout, not for preferential attachment
+averageNodeDegree is taken in consideration only for the spatially clustered layout, not for other networks
 12
 0.0
 1
@@ -831,10 +875,10 @@ NIL
 0
 
 TEXTBOX
-256
-684
-420
-705
+9
+663
+301
+681
 shows in yellow sites with average omega < 1
 12
 0.0
@@ -901,7 +945,7 @@ BUTTON
 137
 191
 redo-layout
-layout
+springLayout
 T
 1
 T
@@ -944,6 +988,31 @@ NIL
 NIL
 NIL
 NIL
+1
+
+SLIDER
+345
+151
+378
+301
+n-probability
+n-probability
+0
+1
+0.07
+0.01
+1
+NIL
+VERTICAL
+
+TEXTBOX
+158
+159
+338
+229
+n-probability used as a rewire probability for Watts-Strogatz and connection probability for Erdős–Rényi.
+11
+0.0
 1
 
 @#$#@#$#@
