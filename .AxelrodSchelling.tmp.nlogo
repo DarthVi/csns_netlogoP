@@ -57,8 +57,9 @@ to setup
     set clusteringCoefficient mean [ nw:clustering-coefficient ] of turtles
     calculateAveragePathLength
     calculateDiameter
+    set degree mean [count my-links] of turtles
+    calculateDensity
   ]
-
 
   set emptyCounter count turtles with [ emptySite? ]
 
@@ -793,7 +794,7 @@ PENS
 BUTTON
 9
 682
-299
+244
 715
 color sites with average overlap < 1
 colorOmegaLessThanOne

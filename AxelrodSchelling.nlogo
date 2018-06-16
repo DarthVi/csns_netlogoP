@@ -633,10 +633,10 @@ editDistance
 0
 
 BUTTON
-34
-131
-139
-164
+32
+115
+137
+148
 redo color
 redoColor
 NIL
@@ -650,10 +650,10 @@ NIL
 0
 
 SWITCH
-174
-133
-343
-166
+172
+117
+341
+150
 colorSingleTrait
 colorSingleTrait
 1
@@ -794,7 +794,7 @@ PENS
 BUTTON
 9
 682
-299
+244
 715
 color sites with average overlap < 1
 colorOmegaLessThanOne
@@ -809,10 +809,10 @@ NIL
 0
 
 TEXTBOX
-77
-728
-266
-773
+256
+684
+420
+716
 shows in yellow sites with average omega < 1
 12
 0.0
@@ -872,6 +872,23 @@ diameter
 17
 1
 11
+
+BUTTON
+33
+158
+137
+191
+redo-layout
+layout
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
