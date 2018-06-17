@@ -65,6 +65,7 @@ to setup
     calculateDiameter
     set degree mean [count my-links] of turtles
     calculateDensity
+    registerCodeStats
   ]
 
   set emptyCounter count turtles with [ emptySite? ]
@@ -103,7 +104,9 @@ to resetRngSeed
     random-seed 95199254
   ]
   [
-    random-seed new-seed
+    let seed new-seed
+    print word "The current seed is: " seed
+    random-seed seed
   ]
 end
 
@@ -676,7 +679,7 @@ CHOOSER
 layoutChosen
 layoutChosen
 "spatially clustered network" "preferential attachment" "Erdős–Rényi random network model" "Watts-Strogatz small world" "Kleinberg model"
-4
+0
 
 TEXTBOX
 23
@@ -765,7 +768,7 @@ SWITCH
 660
 fixedRandomSeed
 fixedRandomSeed
-0
+1
 1
 -1000
 

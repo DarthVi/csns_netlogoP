@@ -65,6 +65,7 @@ to setup
     calculateDiameter
     set degree mean [count my-links] of turtles
     calculateDensity
+    registerCodeStats
   ]
 
   set emptyCounter count turtles with [ emptySite? ]
@@ -103,6 +104,7 @@ to resetRngSeed
     random-seed 95199254
   ]
   [
+
     random-seed new-seed
   ]
 end
@@ -379,7 +381,7 @@ end
 
 ;; generates a network following the Erdős–Rényi model
 to setupErdosRenyi
-  nw:generate-random turtles link numberOfNodes n-probability
+  nw:generate-random turtles undirected-edges numberOfNodes n-probability
   layout-circle sort turtles max-pxcor * 0.9
 end
 
@@ -676,7 +678,7 @@ CHOOSER
 layoutChosen
 layoutChosen
 "spatially clustered network" "preferential attachment" "Erdős–Rényi random network model" "Watts-Strogatz small world" "Kleinberg model"
-2
+0
 
 TEXTBOX
 23
@@ -765,7 +767,7 @@ SWITCH
 660
 fixedRandomSeed
 fixedRandomSeed
-0
+1
 1
 -1000
 
