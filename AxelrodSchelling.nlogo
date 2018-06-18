@@ -101,7 +101,8 @@ to resetRngSeed
   ifelse fixedRandomSeed = true
   [
     ; to create replicable results use specific seeds
-    random-seed 95199254
+    ; random-seed 95199254
+    random-seed customSeed
   ]
   [
     let seed new-seed
@@ -569,7 +570,7 @@ T_threshold
 T_threshold
 0
 1
-0.51
+0.1
 0.01
 1
 NIL
@@ -614,7 +615,7 @@ emptyProbability
 emptyProbability
 0
 1
-0.3
+0.1
 0.01
 1
 NIL
@@ -725,7 +726,7 @@ SWITCH
 150
 colorSingleTrait
 colorSingleTrait
-1
+0
 1
 -1000
 
@@ -1017,6 +1018,17 @@ n-probability used as a rewire probability for Watts-Strogatz and connection pro
 11
 0.0
 1
+
+INPUTBOX
+244
+602
+415
+662
+customSeed
+1.457520671E9
+1
+0
+Number
 
 @#$#@#$#@
 ## WHAT IS IT?
