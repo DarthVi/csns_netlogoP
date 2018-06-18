@@ -101,7 +101,8 @@ to resetRngSeed
   ifelse fixedRandomSeed = true
   [
     ; to create replicable results use specific seeds
-    random-seed 95199254
+    ; random-seed 95199254
+    random-seed customSeed
   ]
   [
     let seed new-seed
@@ -502,6 +503,18 @@ to colorComponents
       ask component [ set color col ] ])
   ]
 end
+
+;; assigns a color to each cultural code and then color the turtles with that specific code
+;; useful at the end of the simulation, when cultural codes will not be more than the cardinality of base-colors
+to mapColorPopulation
+  clear-output
+  output-print "These are the color values assigned for the following codes (for color names, see Tools->Color Watches)"
+  let currentCodes table:keys codeTable
+  let colors sublist ( shuffle remove black (remove white base-colors) ) 0 (length currentCodes)
+  (foreach currentCodes colors [ [curCode col] ->
+    ask turtles with [code = curCode and not emptySite?] [ set color col ]
+    output-print (word curCode ": " col)])
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 385
@@ -584,7 +597,7 @@ numberOfNodes
 numberOfNodes
 1
 5000
-100.0
+400.0
 1
 1
 NIL
@@ -614,7 +627,7 @@ emptyProbability
 emptyProbability
 0
 1
-0.1
+0.3
 0.01
 1
 NIL
@@ -725,7 +738,7 @@ SWITCH
 150
 colorSingleTrait
 colorSingleTrait
-0
+1
 1
 -1000
 
@@ -1028,6 +1041,33 @@ customSeed
 1
 0
 Number
+
+BUTTON
+1727
+113
+1890
+146
+map code to color
+with-local-randomness\n[\n   mapColorPopulation\n]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+TEXTBOX
+1739
+27
+1889
+117
+this button is useful at the end of the simulation; it maps base-colors to cultural codes and colors the turtles
+12
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
