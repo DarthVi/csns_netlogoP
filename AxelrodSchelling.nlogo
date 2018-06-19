@@ -26,6 +26,7 @@ to setup
   table:put layoutsMap "Erdős–Rényi random network model" [ -> setupErdosRenyi ]
   table:put layoutsMap "Watts-Strogatz small world" [ -> setupWattsStrogatz ]
   table:put layoutsMap "Kleinberg model" [ -> setupKleinberg]
+  table:put layoutsMap "2D Lattice" [ -> setupLattice2D]
 
   ; builds a map from a chosen edit distance mechanism and the anonymous function used to compute it
   set editDistanceMap table:make
@@ -392,7 +393,7 @@ to setupWattsStrogatz
   nw:generate-watts-strogatz turtles undirected-edges numberOfNodes 2 n-probability
   ; William Thomas Tutte's layout
   layout-circle sort turtles max-pxcor * 0.9
-  layout-tutte max-n-of (count turtles * 0.5) turtles [ count my-links ] links 12
+  layout-tutte max-n-of (count turtles * 0.5) turtles [ count my-links ] links 24
 end
 
 ;; generates a network following the Kleinberg model
@@ -406,7 +407,20 @@ to setupKleinberg
   nw:generate-small-world turtles undirected-edges dim dim 2.0 false
   ; William Thomas Tutte's layout
   layout-circle sort turtles max-pxcor * 0.9
-  layout-tutte max-n-of (count turtles * 0.5) turtles [ count my-links ] links 12
+  layout-tutte max-n-of (count turtles * 0.5) turtles [ count my-links ] links 24
+  ;repeat 10 [ layout-tutte (turtles with [link-neighbors = 1]) links 30 ]
+end
+
+;; generates a 2D lattice (useful for studying the behaviour of cities with grid-based layouts)
+to setupLattice2D
+  let dim 0
+
+  ; to simplify things, we round up the square root of selected numberOfNodes (the algorithm works by first building a lattice rows * columns)
+  set dim round sqrt numberOfNodes
+  set numberOfNodes dim * dim
+
+  ; it is advised to use the redo layout button after this
+  nw:generate-lattice-2d turtles undirected-edges dim dim false
 end
 
 ;; counts how many different cultural codes there are in the network. Moreover it stores this codes
@@ -582,7 +596,7 @@ T_threshold
 T_threshold
 0
 1
-0.1
+0.4
 0.01
 1
 NIL
@@ -691,8 +705,8 @@ CHOOSER
 56
 layoutChosen
 layoutChosen
-"spatially clustered network" "preferential attachment" "Erdős–Rényi random network model" "Watts-Strogatz small world" "Kleinberg model"
-0
+"spatially clustered network" "preferential attachment" "Erdős–Rényi random network model" "Watts-Strogatz small world" "Kleinberg model" "2D Lattice"
+5
 
 TEXTBOX
 23
