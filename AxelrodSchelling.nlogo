@@ -1043,11 +1043,11 @@ customSeed
 Number
 
 BUTTON
-1727
-113
-1890
-146
-map code to color
+1730
+114
+1888
+147
+map codes to colors
 with-local-randomness\n[\n   mapColorPopulation\n]
 NIL
 1

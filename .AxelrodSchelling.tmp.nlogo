@@ -1045,9 +1045,9 @@ Number
 BUTTON
 1727
 113
-1890
+1906
 146
-map code to color
+map codes to colors
 with-local-randomness\n[\n   mapColorPopulation\n]
 NIL
 1
@@ -1060,10 +1060,10 @@ NIL
 1
 
 TEXTBOX
-1739
-27
-1889
-117
+1736
+19
+1886
+109
 this button is useful at the end of the simulation; it maps base-colors to cultural codes and colors the turtles
 12
 0.0
