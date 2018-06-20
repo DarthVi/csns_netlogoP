@@ -524,7 +524,7 @@ to mapColorPopulation
   clear-output
   output-print "These are the color values assigned for the following codes (for color names, see Tools->Color Watches)"
   let currentCodes table:keys codeTable
-  let colors sublist ( shuffle remove black (remove white base-colors) ) 0 (length currentCodes)
+  let colors sublist ( shuffle remove black (remove white (fput (magenta - 3) base-colors)) ) 0 (length currentCodes)
   (foreach currentCodes colors [ [curCode col] ->
     ask turtles with [code = curCode and not emptySite?] [ set color col ]
     output-print (word curCode ": " col)])
@@ -596,7 +596,7 @@ T_threshold
 T_threshold
 0
 1
-0.4
+0.51
 0.01
 1
 NIL
@@ -706,7 +706,7 @@ CHOOSER
 layoutChosen
 layoutChosen
 "spatially clustered network" "preferential attachment" "Erdős–Rényi random network model" "Watts-Strogatz small world" "Kleinberg model" "2D Lattice"
-5
+0
 
 TEXTBOX
 23

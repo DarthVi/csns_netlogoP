@@ -419,8 +419,8 @@ to setupLattice2D
   set dim round sqrt numberOfNodes
   set numberOfNodes dim * dim
 
+  ; it is advised to use the redo layout button after this
   nw:generate-lattice-2d turtles undirected-edges dim dim false
-  repeat 5000 [ springLayout ]
 end
 
 ;; counts how many different cultural codes there are in the network. Moreover it stores this codes
@@ -524,7 +524,7 @@ to mapColorPopulation
   clear-output
   output-print "These are the color values assigned for the following codes (for color names, see Tools->Color Watches)"
   let currentCodes table:keys codeTable
-  let colors sublist ( shuffle remove black (remove white base-colors) ) 0 (length currentCodes)
+  let colors sublist ( shuffle remove black (remove white fbase-colors) ) 0 (length currentCodes)
   (foreach currentCodes colors [ [curCode col] ->
     ask turtles with [code = curCode and not emptySite?] [ set color col ]
     output-print (word curCode ": " col)])
@@ -596,7 +596,7 @@ T_threshold
 T_threshold
 0
 1
-0.4
+0.51
 0.01
 1
 NIL
@@ -706,7 +706,7 @@ CHOOSER
 layoutChosen
 layoutChosen
 "spatially clustered network" "preferential attachment" "Erdős–Rényi random network model" "Watts-Strogatz small world" "Kleinberg model" "2D Lattice"
-5
+0
 
 TEXTBOX
 23
