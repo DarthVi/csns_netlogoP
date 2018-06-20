@@ -70,6 +70,7 @@ to setup
   ]
 
   set emptyCounter count turtles with [ emptySite? ]
+  output-print (word "Different cultural codes in the networks: " codeCounter)
 
   redoColor
   reset-ticks
@@ -107,7 +108,7 @@ to resetRngSeed
   ]
   [
     let seed new-seed
-    print word "The current seed is: " seed
+    output-print word "The current seed is: " seed
     random-seed seed
   ]
 end
@@ -504,6 +505,7 @@ to colorCommunities
     let colors sublist (sentence standardColors white grey) 0 (length communities)
     (foreach communities colors [ [community col] ->
       ask community [ set color col ] ])
+    output-print word "Total number of different communities: " (length communities)
   ]
 end
 
@@ -519,12 +521,13 @@ to colorComponents
 end
 
 ;; assigns a color to each cultural code and then color the turtles with that specific code
-;; useful at the end of the simulation, when cultural codes will not be more than the cardinality of base-colors
+;; useful at the end of the simulation, when cultural codes will not be more than the cardinality of standardColors
 to mapColorPopulation
   clear-output
   output-print "These are the color values assigned for the following codes (for color names, see Tools->Color Watches)"
   let currentCodes table:keys codeTable
-  let colors sublist ( shuffle remove black (remove white (fput (magenta - 3) base-colors)) ) 0 (length currentCodes)
+  ask turtles [set color white]
+  let colors sublist ( shuffle (fput (grey) standardColors) ) 0 (length currentCodes)
   (foreach currentCodes colors [ [curCode col] ->
     ask turtles with [code = curCode and not emptySite?] [ set color col ]
     output-print (word curCode ": " col)])
@@ -596,7 +599,7 @@ T_threshold
 T_threshold
 0
 1
-0.51
+0.8
 0.01
 1
 NIL
@@ -734,7 +737,7 @@ BUTTON
 137
 148
 redo color
-redoColor
+with-local-randomness [ redoColor ]
 NIL
 1
 T
