@@ -1,3 +1,7 @@
+; Vito Vincenzo Covella
+; email: vitovincenzo.covella@studio.unibo.it
+; student ID number:  0000842689
+
 extensions [ palette table nw ]
 
 ; interactions = number of moves or imitations occurred after the execution of the Axelrod-Schelling model
@@ -89,6 +93,7 @@ to go
   if interactions = 0
     [
       set plotInteractionCounter interactions
+      update-plots
       stop
     ]
 
@@ -569,7 +574,7 @@ f_value
 f_value
 1
 100
-3.0
+9.0
 1
 1
 NIL
@@ -584,7 +589,7 @@ q_value
 q_value
 1
 100
-3.0
+9.0
 1
 1
 NIL
@@ -629,7 +634,7 @@ averageNodeDegree
 averageNodeDegree
 1
 numberOfNodes - 1
-6.0
+12.0
 1
 1
 NIL
@@ -644,7 +649,7 @@ emptyProbability
 emptyProbability
 0
 1
-0.3
+0.45
 0.01
 1
 NIL
@@ -1081,7 +1086,7 @@ TEXTBOX
 19
 1886
 109
-this button is useful at the end of the simulation; it maps base-colors to cultural codes and colors the turtles
+this button is useful at the end of the simulation; it maps colors to cultural codes and colors the turtles
 12
 0.0
 1
@@ -1089,15 +1094,25 @@ this button is useful at the end of the simulation; it maps base-colors to cultu
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This is a simulation about cultural dissemination and segregation, it implents the rules of the Axelrod-Schelling model, obtained by mixing Axelrod's model of dissemination of culture and Schelling's segregation model.
 
 ## HOW IT WORKS
-
-(what rules the agents use to create the overall behavior of the model)
+Nodes represent sites (houses, blocks of flats etc.), while edges represent neighbor relations. Each site can either be empty with probability _e_ (emptyProbability slider in the interface), or it can be inhabited by a single individual with probability (1 − _e_).
+Each individual _i_ is associated with a non-empty site in the network and is characterized by a cultural code σ(_i_), which is a vector of length _F_ (`f_value` slider in the interface) where each element corresponds to a different cultural trait. 
+Cultural traits are represented as integer values in the interval [0; _q_ − 1] (in the interface _q_ can be chosen by using the `q_value` slider). When a new individual is generated, each of the _F_ cultural traits in their cultural code σ(_i_) is picked at random uniformly within this interval. Once the network and the population have been generated, the model can be executed. 
+At every simulation step, for each individual _i_ a random individual _j_
+occupying one of the neighboring sites of _i_ is chosen. At this point, we compute
+the cultural overlap ω<sub>_i_,_j_</sub> between _i_ and _j_ (see code for details about the formula). As the next step, _i_ randomly chooses a trait _k_ out of the _F_ cultural traits of _j_, and copies it with probability ω<sub>_i_,_j_</sub>.
+If, on the other hand, imitation does not occur (with probability
+(1 − ω<sub>_i_,_j_</sub>)), individual _i_ will compute the average cultural overlap with its entire neighborhood, which is defined as the average of the ω<sub>_i_,_j_</sub> values for each individual _j_ that is a neighbor of _i_. At this point if the average cultural overlap is lower than a fixed threshold _T_ (chosen by using the `T_threshold` slider in the interface), individual _i_ will decide to move to a random new site that is emtpy, leaving its previous site empty.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Select a network layout from the `layoutChosen` chooser then choose the number of nodes of the network from the `numberOfNodes` slider. If spatially clustered network is selected, you must decide the average node degree of the network, otherwise this settings will be ignored. For 2D lattices and the Kleinberg model, after choosing the numberOfNodes, the code will automatically adjust it to the closest appropriate value when the setup button is pressed, in order to be able to create a lattice of _k_x_k_ nodes (this is done to simplify the coding section). 
+
+Use the `n_probability` slider to define the rewire probability for the Watts-Strogatz layout or the connection probability for Erdős–Rényi network layout, as specified by the label. Then decides the values for the parameters of the Axelrod-Schelling model, which are the emptyProbability slider, f_value (cultural code length), q_value (each trait will be an integer in the interval between 0 and q_value - 1) and the T_threshold (tolerance threshold).
+
+After these steps, choose a coloring strategy (see the COLORING paragraph). You can also decide to use a fixed seed for the RNG, by putting fixedRandomSeed on On and writing the desired seed in the customSeed field. The availability of this option has been given in order to ensure replicability of the experiments.
 
 ## THINGS TO NOTICE
 
