@@ -1,3 +1,6 @@
+; Vito Vincenzo Covella
+; email: vitovincenzo.covella@studio.unibo.it
+; student ID number:  0000842689
 
 extensions [ palette table nw ]
 
@@ -267,7 +270,7 @@ end
 ;; If instead, the user decides to color code values on a single trait basis, use randomly assigned colors to this specific trait values
 to redoColor
 
-  ifelse colorSingleTrait = false or q_value > 26
+  ifelse colorSingleTrait = false or q_value > length standardColors
   [
     ask turtles
     [
@@ -1103,13 +1106,45 @@ the cultural overlap ω<sub>_i_,_j_</sub> between _i_ and _j_ (see code for deta
 If, on the other hand, imitation does not occur (with probability
 (1 − ω<sub>_i_,_j_</sub>)), individual _i_ will compute the average cultural overlap with its entire neighborhood, which is defined as the average of the ω<sub>_i_,_j_</sub> values for each individual _j_ that is a neighbor of _i_. At this point if the average cultural overlap is lower than a fixed threshold _T_ (chosen by using the `T_threshold` slider in the interface), individual _i_ will decide to move to a random new site that is emtpy, leaving its previous site empty.
 
-## HOW TO USE IT
+## HOW TO USE IT (interface explanations)
 
 Select a network layout from the `layoutChosen` chooser then choose the number of nodes of the network from the `numberOfNodes` slider. If spatially clustered network is selected, you must decide the average node degree of the network, otherwise this settings will be ignored. For 2D lattices and the Kleinberg model, after choosing the numberOfNodes, the code will automatically adjust it to the closest appropriate value when the setup button is pressed, in order to be able to create a lattice of _k_x_k_ nodes (this is done to simplify the coding section). 
 
 Use the `n_probability` slider to define the rewire probability for the Watts-Strogatz layout or the connection probability for Erdős–Rényi network layout, as specified by the label. Then decides the values for the parameters of the Axelrod-Schelling model, which are the emptyProbability slider, f_value (cultural code length), q_value (each trait will be an integer in the interval between 0 and q_value - 1) and the T_threshold (tolerance threshold).
 
 After these steps, choose a coloring strategy (see the COLORING paragraph). You can also decide to use a fixed seed for the RNG, by putting fixedRandomSeed on On and writing the desired seed in the customSeed field. The availability of this option has been given in order to ensure replicability of the experiments.
+
+Then press the setup button and the network will be generated. If you want, press redo-layout and deactivate it when desired. It is advised to use it with the 2D lattice, and the Erdős–Rényi layout. Spatially clustered network layout should produce an understandable and satisfiable layout on its own, without pressing redo-layout.
+The Kleinberg model and the Watts-Strogatz model use William Thomas Tutte's layout, while
+Preferential Attachment uses redo-layout in its own code by default.
+
+Finally you can make the simulation run by pressing go (or go-once to run it for a single tick). At the end of the simulation it is advised to use the "map codes to colors" button. Other details about other button and plots will be explained in the following paragraphs.
+
+See COLORING paragraph for the following buttons:
+
+* Color Louvain communities
+* Color components
+* Color sites with average overlap < 1
+* Maps codes to colors
+
+### COLORING
+Empty sites are always white, no matter the strategy chosen.
+There are two main ways to color inhabited nodes while the simulation is running, in order to see how the model behaves:
+
+1. compute the distance between the codes of the nodes we want to color and the code made up of f_value zeros; then assign accordingly a color in the reverse HSV gradient range from lime green (most similar to the string of zeros) to red (most different), see https://www.colorhexa.com/32cd32-to-ff0000 for getting information about the gradient scale used in the code.
+To choose this strategy turn off the colorSingleTrait switch and pick the desired distance algorithm in the editDistance chooser (more info about these algorithms in the EDIT DISTANCE section).
+DISCLAIMER: this strategy may produce results which are difficult to understand, mainly because similar codes have similar distances, which results in slightly different shades of the same color assigned to them, making them hard to distinguish. For this reason it is advised to use the "maps codes to colors" button at the end of the simulation.
+
+2. turn on the colorSingleTrait switch and choose a trait to take in consideration from the traitChosen choose (ranging from 0 to f_value - 1). In this way the system will automatically assign random different colors to the possible q_value values of the chosen trait and color the nodes accordingly. The colors chosen by the algorithm will be shown in the output field. However keep in mind that the system will ignore this chose if q_value is higher than 26 (the number of colors available in order to make the nodes easily distinguishable) and will apply the first strategy. Moreover this strategy does not give you the opportunity to observe the overall network evolution, since only one trait is considered.
+
+There are also additional buttons that influence coloring behaviours:
+
+* redo-color: apply the coloring strategy chosen between the two previously discussed ones; it is usefule when you change idea about the strategy to use or about the trait to take in consideration
+* Color Louvain communities: assign a random color (28 possible colors) to each Louvain community and color the nodes in the same community with the same assigned color; useful right after having pressed the setup button, before running the simulation, in order to understand how nodes are clustered togheter in hubs and clusters. The colors chosen by the algorithm will be shown in the output field along with the number of detected communities.
+* Color components: colors each component with a different color (28 possible colors).
+* color sites with average overlap < 1: colors with white the empty sites, blue for sites with average overlap equal to 1, yellow for sites with average overlap < 1; useful at the end of the simulation
+* map codes to colors: empty sites will be shown in white. Assign other colors to each detected cultural codes and colors accordingly the nodes with the specific cultural codes. 
+
 
 ## THINGS TO NOTICE
 
