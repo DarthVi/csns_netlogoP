@@ -189,6 +189,9 @@ to axelrodSchelling
       ;; with probability equal to cultural overlap copies one trait of the selected peer
       ifelse random-float 1 <= culturalOverlap
       [
+        ; when the network is approaching the equilibrium state, most of the nodes will have cultural overlap equal to 1 and start imitating traits who are
+        ; already equal. For this reason we must update the interactions only when the overlap is not at the maximum value, otherwise the simulation will
+        ; never stop, even when no real changes happen in the population.
         if culturalOverlap != 1 [set interactions interactions + 1]
 
         let index random f_value
@@ -1183,29 +1186,43 @@ Y-axis: cultural average overlap (the axis goes from 0 to 1.5 only for making th
 
 On the bottom right side of the UI there are various monitors showing informations about the network: clustering coefficient, edge density, average node degree, average path length and network diameter.
 
-## THINGS TO NOTICE
-
-(suggested things for the user to notice while running the model)
-
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+It is suggested to put the speed setting on "faster", especially when the number of chosen node is high.
+Then follow the HOW TO USE IT steps; try for example the spatially clustered network layout with 150 nodes, q_value = 3, f_value = 3, then make different experiments with the empty probability and the threshold T. After getting accustomed to the UI with this values, try different configurations.
 
-## EXTENDING THE MODEL
+Most of the experiments have been done using the spatially clustered network layout and the 2D lattice, because these layouts are the ones most similar to real cities layout (2D lattice for grid based cities and the spatially clustered for generic layouts).
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+## NETLOGO FEATURES AND EXTENSIONS USED
 
-## NETLOGO FEATURES
+Since NetLogo does not have a switch statement and ifelse can look ugly when too many of them are nested, the code makes use of the table extension. Each layout string is associated to an anonymous function which can be retrieved with a `table:get` using the layoutChosen value and then called.
+Tables are also used to store the different cultural codes detected as keys of the table and their counter as content.
 
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+The palette estension is used to work more freely with colors. More specifically, it is used to define a color gradient from lime green to red via the function `palette:scale-gradient`.
+
+The nw extension is used for building the Kleinberg layout, the Watts-Strogatz layout, the 2D lattice layout and the Erdős–Rényi layout (the other networks models and layout are built without using this extension). Moreover it is used to compute and show interesting data about the network, specifically the clustering coefficient, for detecting the Louvain communities, the average degree (in models different from the "spatially connected network" the user cannot choose the degre), the edge density, the average path length and the diameter. Some of these values (like the diameter) will be "infinity" if there isn't only one connected giant component.
 
 ## RELATED MODELS
 
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+See also models library -> Social Science -> Segregation.
+
+The spatially clustered network layout code is the one used in models library -> Networks -> Virus on a Network
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+Axelrod, Robert. “The dissemination of culture: A model with local convergence and global polarization.” Journal of conflict resolution 41.2 (1997):
+203-226.
+
+Schelling, Thomas C. “Dynamic models of segregation.” Journal of mathematical sociology 1.2 (1971): 143-186
+
+Gracia-Lázaro, C., et al. “Residential segregation and cultural dissemination: An Axelrod-Schelling model.” Physical Review E 80.4 (2009): 046123
+
+The spatially clustered network layout code is the one used in models library -> Networks -> Virus on a Network
+
+## AUTHOR
+Vito Vincenzo Covella
+email: vitovincenzo.covella@studio.unibo.it
+student ID number: 0000842689
 @#$#@#$#@
 default
 true
