@@ -1143,8 +1143,45 @@ There are also additional buttons that influence coloring behaviours:
 * Color Louvain communities: assign a random color (28 possible colors) to each Louvain community and color the nodes in the same community with the same assigned color; useful right after having pressed the setup button, before running the simulation, in order to understand how nodes are clustered togheter in hubs and clusters. The colors chosen by the algorithm will be shown in the output field along with the number of detected communities.
 * Color components: colors each component with a different color (28 possible colors).
 * color sites with average overlap < 1: colors with white the empty sites, blue for sites with average overlap equal to 1, yellow for sites with average overlap < 1; useful at the end of the simulation
-* map codes to colors: empty sites will be shown in white. Assign other colors to each detected cultural codes and colors accordingly the nodes with the specific cultural codes. 
+* map codes to colors: empty sites will be shown in white. Assign other colors (27 possible colors) to each detected cultural codes and colors accordingly the nodes with the specific cultural codes. The colors chosen by the algorithm will be shown in the output field. It is advised to use this button at the end of the simulation.
 
+
+### EDIT DISTANCE
+
+When the colorSingleTrait switch is Off, coloring is based on an edit distance from the inhabited node's code and the code made up of f_value zeros (with f_value = 3, [0 0 0]), whereas empty sites are always white.
+The main idea is that similar codes will have similar distance and will be colored accordingly.
+
+The user can choose between two kinds of edit distance algorithms in the editDistance chooser: modified Hamming distance and cosine similarity.
+
+* Modified Hamming distance: the original Hamming distance simply counts how many different values there are between two strings. This is not good enough for this simulation, because different codes like [1 1 0], [0 1 1] and [2 0 0] would have the same distance from zeros and be colored with the same code. For this reason the algorithm used in the code provided uses a modified version of it and makes a sum of the values that are different from zero, along with their position. For example [1 1 0] will have distance 3 (1 + 0 + 1 + 1, because the first 1 has position 0 and the second has position 1), [0 1 1] will have distance 5. Considering positions allows us to distinguish different codes that would have the same distance witouth this correction.
+
+* Cosine similarity: it uses the cosine similarity algorithm with a bias ε of 0.000000001 at the denominator in order to prevent divisions by zero.
+
+It is advised to used the modified Hamming distance and the "map codes to colors" button at the end of the simulation.
+
+### OUTPUT FIELD
+
+On the top right corner of the UI there is an output field that will be automaticalle filled with informations when needed. Here the seed of the RNG will be shown (in case fixedRandomSeed is Off) and also the number of detected cultures in the starting populations after pressing setup. Moreover if you hit the Color Louvain communities button, here will be shown the number of detected communities.
+Other information that will be shown here: the mapping between colors and codes or traits whenever needed. However colors will be described with integers, since NegLogo's output-print command doesn't allow coloring text. Please refer to Tools -> Color Swatches to understand to what colors a specific integer corresponds.
+
+### PLOTS
+
+ratio of sites with average overlap < 1: as the name suggests, it will show how the ratio of sites with average overlap < 1 (the number of these sites / all the inhabited sites) varies over time.
+
+Network status: it shows how the number of interactions (imitations or nodes moving) varies and the number of different cultural codes in the population vary over time.
+
+Cultural codes: it shows the histograms of detected cultural codes in the populations, with appropriate color coding in the legend; since at the beginning of the simulation there may be lots of cultural codes, the legend may not be fully displayable. The x-axis does not have a particular meaning, it only serves the purpose of separating the histograms.
+
+Cultural average overlaps: it shows the different values cultural average overlap detected and draws their histograms, showing how many nodes hold each specific value.
+The x-axis does not have a particular meaning, it only serves the purpose of separating the histograms.
+
+Cultural average overlaps scatter plot: it shows a dot for each inhabited site with a specific cultural average overlap value.
+X-axis: sites ID
+Y-axis: cultural average overlap (the axis goes from 0 to 1.5 only for making the plot easy to read, the values themselves can reach a maximum of 1, they never go beyond that).
+
+### MONITORS
+
+On the bottom right side of the UI there are various monitors showing informations about the network: clustering coefficient, edge density, average nod
 
 ## THINGS TO NOTICE
 
