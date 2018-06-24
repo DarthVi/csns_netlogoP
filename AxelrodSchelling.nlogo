@@ -607,7 +607,7 @@ T_threshold
 T_threshold
 0
 1
-0.8
+0.2
 0.01
 1
 NIL
@@ -621,7 +621,7 @@ SLIDER
 numberOfNodes
 numberOfNodes
 1
-5000
+1000
 400.0
 1
 1
@@ -637,7 +637,7 @@ averageNodeDegree
 averageNodeDegree
 1
 numberOfNodes - 1
-12.0
+6.0
 1
 1
 NIL
@@ -652,7 +652,7 @@ emptyProbability
 emptyProbability
 0
 1
-0.45
+0.35
 0.01
 1
 NIL
@@ -1073,7 +1073,7 @@ BUTTON
 1888
 147
 map codes to colors
-with-local-randomness\n[\n   mapColorPopulation\n]
+with-local-randomness\n[\n   random-seed new-seed\n   mapColorPopulation\n]
 NIL
 1
 T
@@ -1114,6 +1114,8 @@ If, on the other hand, imitation does not occur (with probability
 Select a network layout from the `layoutChosen` chooser then choose the number of nodes of the network from the `numberOfNodes` slider. If spatially clustered network is selected, you must decide the average node degree of the network, otherwise this settings will be ignored. For 2D lattices and the Kleinberg model, after choosing the numberOfNodes, the code will automatically adjust it to the closest appropriate value when the setup button is pressed, in order to be able to create a lattice of _k_x_k_ nodes (this is done to simplify the coding section). 
 
 Use the `n_probability` slider to define the rewire probability for the Watts-Strogatz layout or the connection probability for Erdős–Rényi network layout, as specified by the label. Then decides the values for the parameters of the Axelrod-Schelling model, which are the emptyProbability slider, f_value (cultural code length), q_value (each trait will be an integer in the interval between 0 and q_value - 1) and the T_threshold (tolerance threshold).
+
+It is highly advised to activate the redo-layout button for the 2D Lattice, put the time slider on "faster" and deactivate the button when satisfied with the result.
 
 After these steps, choose a coloring strategy (see the COLORING paragraph). You can also decide to use a fixed seed for the RNG, by putting fixedRandomSeed on On and writing the desired seed in the customSeed field. The availability of this option has been given in order to ensure replicability of the experiments.
 
