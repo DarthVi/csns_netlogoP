@@ -577,7 +577,7 @@ f_value
 f_value
 1
 100
-9.0
+15.0
 1
 1
 NIL
@@ -592,7 +592,7 @@ q_value
 q_value
 1
 100
-9.0
+15.0
 1
 1
 NIL
@@ -637,7 +637,7 @@ averageNodeDegree
 averageNodeDegree
 1
 numberOfNodes - 1
-6.0
+12.0
 1
 1
 NIL
@@ -1115,7 +1115,7 @@ Select a network layout from the `layoutChosen` chooser then choose the number o
 
 Use the `n_probability` slider to define the rewire probability for the Watts-Strogatz layout or the connection probability for Erdős–Rényi network layout, as specified by the label. Then decides the values for the parameters of the Axelrod-Schelling model, which are the emptyProbability slider, f_value (cultural code length), q_value (each trait will be an integer in the interval between 0 and q_value - 1) and the T_threshold (tolerance threshold).
 
-It is highly advised to activate the redo-layout button for the 2
+It is highly advised to activate the redo-layout button for the 2D Lattice, put the time slider on "faster" and deactivate the button when satisfied with the result.
 
 After these steps, choose a coloring strategy (see the COLORING paragraph). You can also decide to use a fixed seed for the RNG, by putting fixedRandomSeed on On and writing the desired seed in the customSeed field. The availability of this option has been given in order to ensure replicability of the experiments.
 

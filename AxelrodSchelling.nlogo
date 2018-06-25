@@ -577,7 +577,7 @@ f_value
 f_value
 1
 100
-9.0
+15.0
 1
 1
 NIL
@@ -592,7 +592,7 @@ q_value
 q_value
 1
 100
-9.0
+15.0
 1
 1
 NIL
@@ -637,7 +637,7 @@ averageNodeDegree
 averageNodeDegree
 1
 numberOfNodes - 1
-6.0
+12.0
 1
 1
 NIL
