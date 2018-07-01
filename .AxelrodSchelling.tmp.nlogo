@@ -577,7 +577,7 @@ f_value
 f_value
 1
 100
-15.0
+3.0
 1
 1
 NIL
@@ -592,7 +592,7 @@ q_value
 q_value
 1
 100
-15.0
+3.0
 1
 1
 NIL
@@ -607,7 +607,7 @@ T_threshold
 T_threshold
 0
 1
-0.2
+0.51
 0.01
 1
 NIL
@@ -776,7 +776,7 @@ traitChosen
 traitChosen
 0
 q_value - 1
-0.0
+8.0
 1
 1
 NIL
@@ -1111,7 +1111,7 @@ If, on the other hand, imitation does not occur (with probability
 
 ## HOW TO USE IT (interface explanations)
 
-Select a network layout from the `layoutChosen` chooser then choose the number of nodes of the network from the `numberOfNodes` slider. If spatially clustered network is selected, you must decide the average node degree of the network, otherwise this settings will be ignored. For 2D lattices and the Kleinberg model, after choosing the numberOfNodes, the code will automatically adjust it to the closest appropriate value when the setup button is pressed, in order to be able to create a lattice of _k_x_k_ nodes (this is done to simplify the coding section). 
+Select a network layout from the `layoutChosen` chooser then choose the number of nodes of the network from the `numberOfNodes` slider (it is advised to choose a value which is not too high, even if in theor; numerous experiments have been done with 400 nodes. If spatially clustered network is selected, you must decide the average node degree of the network, otherwise this settings will be ignored. For 2D lattices and the Kleinberg model, after choosing the numberOfNodes, the code will automatically adjust it to the closest appropriate value when the setup button is pressed, in order to be able to create a lattice of _k_x_k_ nodes (this is done to simplify the coding section). 
 
 Use the `n_probability` slider to define the rewire probability for the Watts-Strogatz layout or the connection probability for Erdős–Rényi network layout, as specified by the label. Then decides the values for the parameters of the Axelrod-Schelling model, which are the emptyProbability slider, f_value (cultural code length), q_value (each trait will be an integer in the interval between 0 and q_value - 1) and the T_threshold (tolerance threshold).
 
@@ -1148,7 +1148,7 @@ There are also additional buttons that influence coloring behaviours:
 * Color Louvain communities: assign a random color (28 possible colors) to each Louvain community and color the nodes in the same community with the same assigned color; useful right after having pressed the setup button, before running the simulation, in order to understand how nodes are clustered togheter in hubs and clusters. The colors chosen by the algorithm will be shown in the output field along with the number of detected communities.
 * Color components: colors each component with a different color (28 possible colors).
 * color sites with average overlap < 1: colors with white the empty sites, blue for sites with average overlap equal to 1, yellow for sites with average overlap < 1; useful at the end of the simulation
-* map codes to colors: empty sites will be shown in white. Assign other colors (27 possible colors) to each detected cultural codes and colors accordingly the nodes with the specific cultural codes. The colors chosen by the algorithm will be shown in the output field. It is advised to use this button at the end of the simulation.
+* map codes to colors: empty sites will be shown in white. Assign other colors (27 possible colors) to each detected cultural codes and colors accordingly the nodes with the specific cultural codes. The colors chosen by the algorithm will be shown in the output field. It is advised to use this button at the end of the simulation. DISCLAIMER: this button may not work properly when the number of cultures over the population is higher than 27; in this case, use other methods.
 
 
 ### EDIT DISTANCE
