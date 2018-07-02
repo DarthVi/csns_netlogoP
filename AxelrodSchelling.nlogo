@@ -1111,9 +1111,9 @@ If, on the other hand, imitation does not occur (with probability
 
 ## HOW TO USE IT (interface explanations)
 
-Select a network layout from the `layoutChosen` chooser then choose the number of nodes of the network from the `numberOfNodes` slider (it is advised to choose a value which is not too high, even if in theory you can go up to 1000; numerous experiments have been done with 400 nodes). If spatially clustered network is selected, you must decide the average node degree of the network, otherwise this settings will be ignored. For 2D lattices and the Kleinberg model, after choosing the numberOfNodes, the code will automatically adjust it to the closest appropriate value when the setup button is pressed, in order to be able to create a lattice of _k_x_k_ nodes (this is done to simplify the coding section). 
+Select a network layout from the `layoutChosen` chooser then choose the number of nodes of the network from the `numberOfNodes` slider (it is advised to choose a value which is not too high, even if in theory you can go up to 1000; numerous experiments have been done with 400 nodes). If spatially clustered network is selected, you must decide the average node degree of the network, for other types of networks this settings will be ignored. For 2D lattices and the Kleinberg model, after choosing the numberOfNodes, the code will automatically adjust it to the closest appropriate value when the setup button is pressed, in order to be able to create a lattice of _k_ x _k_ nodes (this is done to simplify the coding section). 
 
-Use the `n_probability` slider to define the rewire probability for the Watts-Strogatz layout or the connection probability for Erdős–Rényi network layout, as specified by the label. Then decides the values for the parameters of the Axelrod-Schelling model, which are the emptyProbability slider, f_value (cultural code length), q_value (each trait will be an integer in the interval between 0 and q_value - 1) and the T_threshold (tolerance threshold).
+Use the `n_probability` slider to define the rewire probability for the Watts-Strogatz layout or the connection probability for Erdős–Rényi network layout, as specified by the label. Then decide the values for the parameters of the Axelrod-Schelling model, which are the emptyProbability slider, f_value (cultural code length), q_value (each trait will be an integer in the interval between 0 and q_value - 1) and the T_threshold (tolerance threshold).
 
 It is highly advised to activate the redo-layout button for the 2D Lattice, put the time slider on "faster" and deactivate the button when satisfied with the result.
 
@@ -1123,7 +1123,7 @@ Then press the setup button and the network will be generated. If you want, pres
 The Kleinberg model and the Watts-Strogatz model use William Thomas Tutte's layout, while
 Preferential Attachment uses redo-layout in its own code by default.
 
-Finally you can make the simulation run by pressing go (or go-once to run it for a single tick). At the end of the simulation it is advised to use the "map codes to colors" button. Other details about other button and plots will be explained in the following paragraphs.
+Finally you can make the simulation run by pressing go (or go-once to run it for a single tick). At the end of the simulation it is advised to use the "map codes to colors" button (WARNING: this button may not work properly when the number of cultures over the population is higher than 27; in this case, use other methods). Other details about other button and plots will be explained in the following paragraphs.
 
 See COLORING paragraph for the following buttons:
 
@@ -1138,7 +1138,7 @@ There are two main ways to color inhabited nodes while the simulation is running
 
 1. compute the distance between the codes of the nodes we want to color and the code made up of f_value zeros; then assign accordingly a color in the reverse HSV gradient range from lime green (most similar to the string of zeros) to red (most different), see https://www.colorhexa.com/32cd32-to-ff0000 for getting information about the gradient scale used in the code.
 To choose this strategy turn off the colorSingleTrait switch and pick the desired distance algorithm in the editDistance chooser (more info about these algorithms in the EDIT DISTANCE section).
-DISCLAIMER: this strategy may produce results which are difficult to understand, mainly because similar codes have similar distances, which results in slightly different shades of the same color assigned to them, making them hard to distinguish. For this reason it is advised to use the "maps codes to colors" button at the end of the simulation.
+WARNING: this strategy may produce results which are difficult to understand, mainly because similar codes have similar distances, which results in slightly different shades of the same color assigned to them, making them hard to distinguish. For this reason it is advised to use the "maps codes to colors" button at the end of the simulation.
 
 2. turn on the colorSingleTrait switch and choose a trait to take in consideration from the traitChosen choose (ranging from 0 to f_value - 1). In this way the system will automatically assign random different colors to the possible q_value values of the chosen trait and color the nodes accordingly. The colors chosen by the algorithm will be shown in the output field. However keep in mind that the system will ignore this chose if q_value is higher than 26 (the number of colors available in order to make the nodes easily distinguishable) and will apply the first strategy. Moreover this strategy does not give you the opportunity to observe the overall network evolution, since only one trait is considered.
 
@@ -1148,7 +1148,7 @@ There are also additional buttons that influence coloring behaviours:
 * Color Louvain communities: assign a random color (28 possible colors) to each Louvain community and color the nodes in the same community with the same assigned color; useful right after having pressed the setup button, before running the simulation, in order to understand how nodes are clustered togheter in hubs and clusters. The colors chosen by the algorithm will be shown in the output field along with the number of detected communities.
 * Color components: colors each component with a different color (28 possible colors).
 * color sites with average overlap < 1: colors with white the empty sites, blue for sites with average overlap equal to 1, yellow for sites with average overlap < 1; useful at the end of the simulation
-* map codes to colors: empty sites will be shown in white. Assign other colors (27 possible colors) to each detected cultural codes and colors accordingly the nodes with the specific cultural codes. The colors chosen by the algorithm will be shown in the output field. It is advised to use this button at the end of the simulation. DISCLAIMER: this button may not work properly when the number of cultures over the population is higher than 27; in this case, use other methods.
+* map codes to colors: empty sites will be shown in white. Assign other colors (27 possible colors) to each detected cultural codes and colors accordingly the nodes with the specific cultural codes. The colors chosen by the algorithm will be shown in the output field. It is advised to use this button at the end of the simulation. WARNING: this button may not work properly when the number of cultures over the population is higher than 27; in this case, use other methods.
 
 
 ### EDIT DISTANCE
@@ -1167,7 +1167,7 @@ It is advised to used the modified Hamming distance and the "map codes to colors
 ### OUTPUT FIELD
 
 On the top right corner of the UI there is an output field that will be automaticalle filled with informations when needed. Here the seed of the RNG will be shown (in case fixedRandomSeed is Off) and also the number of detected cultures in the starting populations after pressing setup. Moreover if you hit the Color Louvain communities button, here will be shown the number of detected communities.
-Other information that will be shown here: the mapping between colors and codes or traits whenever needed. However colors will be described with integers, since NegLogo's output-print command doesn't allow coloring text. Please refer to Tools -> Color Swatches to understand to what colors a specific integer corresponds.
+Other information that will be shown here: the mapping between colors and codes or traits whenever needed. However colors will be described with integers, since NegLogo's output-print command doesn't allow coloring text. Please refer to Tools -> Color Swatches to understand to what color a specific integer corresponds.
 
 ### PLOTS
 
@@ -1193,7 +1193,7 @@ On the bottom right side of the UI there are various monitors showing informatio
 It is suggested to put the speed setting on "faster", especially when the number of chosen node is high.
 Then follow the HOW TO USE IT steps; try for example the spatially clustered network layout with 150 nodes, q_value = 3, f_value = 3, then make different experiments with the empty probability and the threshold T. After getting accustomed to the UI with this values, try different configurations.
 
-Most of the experiments have been done using the spatially clustered network layout and the 2D lattice, because these layouts are the ones most similar to real cities layout (2D lattice for grid based cities and the spatially clustered for generic layouts).
+Most of the experiments have been done using the spatially clustered network layout, the 2D lattice and preferential attachment, because these layouts are the ones most similar to real cities layout (2D lattice for grid based cities and the spatially clustered for generic layouts) and online communities.
 
 ## NETLOGO FEATURES AND EXTENSIONS USED
 
@@ -1210,6 +1210,8 @@ See also models library -> Social Science -> Segregation.
 
 The spatially clustered network layout code is the one used in models library -> Networks -> Virus on a Network
 
+The preferential attachment layout code is a slightly modified version of the code in models library -> Networks -> Preferential Attachment
+
 ## CREDITS AND REFERENCES
 
 Axelrod, Robert. “The dissemination of culture: A model with local convergence and global polarization.” Journal of conflict resolution 41.2 (1997):
@@ -1220,6 +1222,8 @@ Schelling, Thomas C. “Dynamic models of segregation.” Journal of mathematica
 Gracia-Lázaro, C., et al. “Residential segregation and cultural dissemination: An Axelrod-Schelling model.” Physical Review E 80.4 (2009): 046123
 
 The spatially clustered network layout code is the one used in models library -> Networks -> Virus on a Network
+
+The preferential attachment layout code is a slightly modified version of the code in models library -> Networks -> Preferential Attachment
 
 ## AUTHOR
 Vito Vincenzo Covella
