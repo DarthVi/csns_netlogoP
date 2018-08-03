@@ -136,4 +136,4 @@ The preferential attachment layout code is a slightly modified version of the co
 Vito Vincenzo Covella a.k.a. "DarthVi"
 
 ## LICENSE
-Creative Commons Attribution Internationals 4.0, see https://creativecommons.org/licenses/by/4.0/ for details
+Creative Commons Attribution International 4.0, see https://creativecommons.org/licenses/by/4.0/ for details
